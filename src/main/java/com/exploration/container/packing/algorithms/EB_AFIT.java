@@ -246,13 +246,13 @@ public class EB_AFIT implements PackingAlgorithm {
 
             layers.add(new Layer(0, -1));
             listCandidateLayers();
-            layers = layers.stream().sorted(Comparator.comparingDouble(l -> l.layerEval)).collect(Collectors.toList());
+            layers = layers.stream().sorted(Comparator.comparingDouble(l -> l.getLayerEval())).collect(Collectors.toList());
 
             for (layersIndex = 1; (layersIndex <= layerListLen) && !quit; layersIndex++) {
                 packedVolume = 0.0D;
                 packedy = 0;
                 packing = true;
-                layerThickness = layers.get(layersIndex).layerDim;
+                layerThickness = layers.get(layersIndex).getLayerDim();
                 itelayer = layersIndex;
                 remainpy = py;
                 remainpz = pz;
@@ -521,7 +521,7 @@ public class EB_AFIT implements PackingAlgorithm {
                 same = false;
 
                 for (k = 1; k <= layerListLen; k++) {
-                    if (exdim == layers.get(k).layerDim) {
+                    if (exdim == layers.get(k).getLayerDim()) {
                         same = true;
                         continue;
                     }
@@ -548,8 +548,8 @@ public class EB_AFIT implements PackingAlgorithm {
                 layerListLen++;
 
                 layers.add(new Layer());
-                layers.get(layerListLen).layerEval = layereval;
-                layers.get(layerListLen).layerDim = exdim;
+                layers.get(layerListLen).setLayerEval(layereval);
+                layers.get(layerListLen).setLayerDim(exdim);
             }
         }
     }
@@ -910,11 +910,11 @@ public class EB_AFIT implements PackingAlgorithm {
         layers.clear();
         layers.add(new Layer(0, -1));
         listCandidateLayers();
-        layers = layers.stream().sorted(Comparator.comparingDouble(l -> l.layerEval)).collect(Collectors.toList());
+        layers = layers.stream().sorted(Comparator.comparingDouble(l -> l.getLayerEval())).collect(Collectors.toList());
         packedVolume = 0;
         packedy = 0;
         packing = true;
-        layerThickness = layers.get(bestIteration).layerDim;
+        layerThickness = layers.get(bestIteration).getLayerDim();
         remainpy = py;
         remainpz = pz;
 
@@ -986,7 +986,7 @@ public class EB_AFIT implements PackingAlgorithm {
         /// <value>
         /// The layer dimension value.
         /// </value>
-        public double layerDim;
+        private double layerDim;
 
         /// <summary>
         /// Gets or sets the layer eval value, representing an evaluation weight
@@ -995,7 +995,7 @@ public class EB_AFIT implements PackingAlgorithm {
         /// <value>
         /// The layer eval value.
         /// </value>
-        public double layerEval;
+        private double layerEval;
     }
 
     /**
