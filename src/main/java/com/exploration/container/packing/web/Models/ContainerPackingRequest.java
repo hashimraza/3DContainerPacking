@@ -1,7 +1,7 @@
-package com.zooplus.logistics.exploration.packing.web.Models;
+package com.exploration.container.packing.web.Models;
 
-import com.zooplus.logistics.exploration.packing.entities.Container;
-import com.zooplus.logistics.exploration.packing.entities.Item;
+import com.exploration.container.packing.entities.Container;
+import com.exploration.container.packing.entities.Item;
 import lombok.Data;
 
 import java.util.List;

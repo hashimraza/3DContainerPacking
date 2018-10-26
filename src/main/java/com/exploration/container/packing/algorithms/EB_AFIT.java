@@ -1,8 +1,8 @@
-package com.zooplus.logistics.exploration.packing.algorithms;
+package com.exploration.container.packing.algorithms;
 
-import com.zooplus.logistics.exploration.packing.entities.AlgorithmPackingResult;
-import com.zooplus.logistics.exploration.packing.entities.Container;
-import com.zooplus.logistics.exploration.packing.entities.Item;
+import com.exploration.container.packing.entities.AlgorithmPackingResult;
+import com.exploration.container.packing.entities.Container;
+import com.exploration.container.packing.entities.Item;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
