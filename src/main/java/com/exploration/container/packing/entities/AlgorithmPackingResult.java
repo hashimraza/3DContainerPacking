@@ -1,23 +1,26 @@
 package com.exploration.container.packing.entities;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 
+@Data
 public class AlgorithmPackingResult {
-    public int algorithmId;
+    private int algorithmId;
 
-    public String algorithmName;
-    public boolean isCompletePack;
+    private String algorithmName;
+    private boolean isCompletePack;
 
-    public ArrayList<Item> packedItems;
-    public long packTimeInMilliseconds;
+    private ArrayList<Item> packedItems;
+    private long packTimeInMilliseconds;
 
-    public double percentContainerVolumePacked;
-    public double percentItemVolumePacked;
+    private double percentContainerVolumePacked;
+    private double percentItemVolumePacked;
 
-    public ArrayList<Item> unpackedItems;
+    private ArrayList<Item> unpackedItems;
 
     public AlgorithmPackingResult() {
-        this.packedItems = new ArrayList<>();
-        this.unpackedItems = new ArrayList<>();
+        this.setPackedItems(new ArrayList<>());
+        this.setUnpackedItems(new ArrayList<>());
     }
 }

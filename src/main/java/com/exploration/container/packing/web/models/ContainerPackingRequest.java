@@ -1,4 +1,4 @@
-package com.exploration.container.packing.web.Models;
+package com.exploration.container.packing.web.models;
 
 import com.exploration.container.packing.entities.Container;
 import com.exploration.container.packing.entities.Item;
@@ -8,9 +8,9 @@ import java.util.List;
 
 @Data
 public class ContainerPackingRequest {
-    public List<Container> containers;
+    private List<Container> containers;
 
-    public List<Item> ItemsToPack;
+    private List<Item> ItemsToPack;
 
-    public List<Integer> AlgorithmTypeIDs;
+    private List<Integer> AlgorithmTypeIDs;
 }

@@ -24,33 +24,31 @@ public class EB_AFIT implements PackingAlgorithm {
     private List<Layer> layers;
     private ScrapPad scrapFirst;
     private ScrapPad smallestZ;
-    private ScrapPad trash;
     private boolean evened;
     private boolean hundredPercentPacked = false;
     private boolean layerDone;
     private boolean packing;
     private boolean packingBest = false;
     private boolean quit = false;
-    private int bboxi;
+    private int bBoxI;
     private int bestIteration;
     private int bestVariant;
-    private int boxi;
-    private int cboxi;
+    private int boxI;
+    private int cBoxI;
     private int layerListLen;
-    private int packedItemCount;
     private int x;
     private double bbfx;
     private double bbfy;
     private double bbfz;
-    private double bboxx;
-    private double bboxy;
-    private double bboxz;
-    private double bfx;
-    private double bfy;
-    private double bfz;
-    private double boxx;
-    private double boxy;
-    private double boxz;
+    private double bBoxX;
+    private double bBoxY;
+    private double bBoxZ;
+    private double bfX;
+    private double bfY;
+    private double bfZ;
+    private double boxX;
+    private double boxY;
+    private double boxZ;
     private double cboxx;
     private double cboxy;
     private double cboxz;
@@ -84,22 +82,22 @@ public class EB_AFIT implements PackingAlgorithm {
         report(container);
 
         AlgorithmPackingResult result = new AlgorithmPackingResult();
-        result.algorithmId = AlgorithmType.EB_AFIT.getType();
-        result.algorithmName = AlgorithmType.EB_AFIT.name();
+        result.setAlgorithmId(AlgorithmType.EB_AFIT.getType());
+        result.setAlgorithmName(AlgorithmType.EB_AFIT.name());
 
         for (int i = 1; i <= itemsToPackCount; i++) {
-            itemsToPack.get(i).quantity = 1;
+            itemsToPack.get(i).setQuantity(1);
 
-            if (!itemsToPack.get(i).isPacked) {
-                result.unpackedItems.add(itemsToPack.get(i));
+            if (!itemsToPack.get(i).isPacked()) {
+                result.getUnpackedItems().add(itemsToPack.get(i));
             }
         }
 
-        result.packedItems = itemsPackedInOrder;
+        result.setPackedItems(itemsPackedInOrder);
 
 
-        if (result.unpackedItems.size() == 0) {
-            result.isCompletePack = true;
+        if (result.getUnpackedItems().size() == 0) {
+            result.setCompletePack(true);
         }
 
         return result;
@@ -111,56 +109,28 @@ public class EB_AFIT implements PackingAlgorithm {
     private void analyzeBox(double hmx, double hy, double hmy, double hz, double hmz, double dim1, double dim2, double dim3) {
         if (dim1 <= hmx && dim2 <= hmy && dim3 <= hmz) {
             if (dim2 <= hy) {
-                if (hy - dim2 < bfy) {
-                    boxx = dim1;
-                    boxy = dim2;
-                    boxz = dim3;
-                    bfx = hmx - dim1;
-                    bfy = hy - dim2;
-                    bfz = Math.abs(hz - dim3);
-                    boxi = x;
-                } else if (hy - dim2 == bfy && hmx - dim1 < bfx) {
-                    boxx = dim1;
-                    boxy = dim2;
-                    boxz = dim3;
-                    bfx = hmx - dim1;
-                    bfy = hy - dim2;
-                    bfz = Math.abs(hz - dim3);
-                    boxi = x;
-                } else if (hy - dim2 == bfy && hmx - dim1 == bfx && Math.abs(hz - dim3) < bfz) {
-                    boxx = dim1;
-                    boxy = dim2;
-                    boxz = dim3;
-                    bfx = hmx - dim1;
-                    bfy = hy - dim2;
-                    bfz = Math.abs(hz - dim3);
-                    boxi = x;
+                if ((hy - dim2 < bfY)
+                        || (hy - dim2 == bfY && hmx - dim1 < bfX)
+                        || (hy - dim2 == bfY && hmx - dim1 == bfX && Math.abs(hz - dim3) < bfZ)) {
+                    boxX = dim1;
+                    boxY = dim2;
+                    boxZ = dim3;
+                    bfX = hmx - dim1;
+                    bfY = hy - dim2;
+                    bfZ = Math.abs(hz - dim3);
+                    boxI = x;
                 }
             } else {
-                if (dim2 - hy < bbfy) {
-                    bboxx = dim1;
-                    bboxy = dim2;
-                    bboxz = dim3;
+                if ((dim2 - hy < bbfy)
+                        || (dim2 - hy == bbfy && hmx - dim1 < bbfx)
+                        || (dim2 - hy == bbfy && hmx - dim1 == bbfx && Math.abs(hz - dim3) < bbfz)) {
+                    bBoxX = dim1;
+                    bBoxY = dim2;
+                    bBoxZ = dim3;
                     bbfx = hmx - dim1;
                     bbfy = dim2 - hy;
                     bbfz = Math.abs(hz - dim3);
-                    bboxi = x;
-                } else if (dim2 - hy == bbfy && hmx - dim1 < bbfx) {
-                    bboxx = dim1;
-                    bboxy = dim2;
-                    bboxz = dim3;
-                    bbfx = hmx - dim1;
-                    bbfy = dim2 - hy;
-                    bbfz = Math.abs(hz - dim3);
-                    bboxi = x;
-                } else if (dim2 - hy == bbfy && hmx - dim1 == bbfx && Math.abs(hz - dim3) < bbfz) {
-                    bboxx = dim1;
-                    bboxy = dim2;
-                    bboxz = dim3;
-                    bbfx = hmx - dim1;
-                    bbfy = dim2 - hy;
-                    bbfz = Math.abs(hz - dim3);
-                    bboxi = x;
+                    bBoxI = x;
                 }
             }
         }
@@ -172,24 +142,24 @@ public class EB_AFIT implements PackingAlgorithm {
     private void checkFound() {
         evened = false;
 
-        if (boxi != 0) {
-            cboxi = boxi;
-            cboxx = boxx;
-            cboxy = boxy;
-            cboxz = boxz;
+        if (boxI != 0) {
+            cBoxI = boxI;
+            cboxx = boxX;
+            cboxy = boxY;
+            cboxz = boxZ;
         } else {
-            if ((bboxi > 0) && (layerinlayer != 0 || (smallestZ.pre == null && smallestZ.post == null))) {
+            if ((bBoxI > 0) && (layerinlayer != 0 || (smallestZ.pre == null && smallestZ.post == null))) {
                 if (layerinlayer == 0) {
                     prelayer = layerThickness;
                     lilz = smallestZ.cumZ;
                 }
 
-                cboxi = bboxi;
-                cboxx = bboxx;
-                cboxy = bboxy;
-                cboxz = bboxz;
-                layerinlayer = layerinlayer + bboxy - layerThickness;
-                layerThickness = bboxy;
+                cBoxI = bBoxI;
+                cboxx = bBoxX;
+                cboxy = bBoxY;
+                cboxz = bBoxZ;
+                layerinlayer = layerinlayer + bBoxY - layerThickness;
+                layerThickness = bBoxY;
             } else {
                 if (smallestZ.pre == null && smallestZ.post == null) {
                     layerDone = true;
@@ -197,7 +167,6 @@ public class EB_AFIT implements PackingAlgorithm {
                     evened = true;
 
                     if (smallestZ.pre == null) {
-                        trash = smallestZ.post;
                         smallestZ.cumX = smallestZ.post.cumX;
                         smallestZ.cumZ = smallestZ.post.cumZ;
                         smallestZ.post = smallestZ.post.post;
@@ -241,39 +210,39 @@ public class EB_AFIT implements PackingAlgorithm {
         for (int containerOrientationVariant = 1; (containerOrientationVariant <= 6) && !quit; containerOrientationVariant++) {
             switch (containerOrientationVariant) {
                 case 1:
-                    px = container.length;
-                    py = container.height;
-                    pz = container.width;
+                    px = container.getLength();
+                    py = container.getHeight();
+                    pz = container.getWidth();
                     break;
 
                 case 2:
-                    px = container.width;
-                    py = container.height;
-                    pz = container.length;
+                    px = container.getWidth();
+                    py = container.getHeight();
+                    pz = container.getLength();
                     break;
 
                 case 3:
-                    px = container.width;
-                    py = container.length;
-                    pz = container.height;
+                    px = container.getWidth();
+                    py = container.getLength();
+                    pz = container.getHeight();
                     break;
 
                 case 4:
-                    px = container.height;
-                    py = container.length;
-                    pz = container.width;
+                    px = container.getHeight();
+                    py = container.getLength();
+                    pz = container.getWidth();
                     break;
 
                 case 5:
-                    px = container.length;
-                    py = container.width;
-                    pz = container.height;
+                    px = container.getLength();
+                    py = container.getWidth();
+                    pz = container.getHeight();
                     break;
 
                 case 6:
-                    px = container.height;
-                    py = container.width;
-                    pz = container.length;
+                    px = container.getHeight();
+                    py = container.getWidth();
+                    pz = container.getLength();
                     break;
             }
 
@@ -289,10 +258,9 @@ public class EB_AFIT implements PackingAlgorithm {
                 itelayer = layersIndex;
                 remainpy = py;
                 remainpz = pz;
-                packedItemCount = 0;
 
                 for (x = 1; x <= itemsToPackCount; x++) {
-                    itemsToPack.get(x).isPacked = false;
+                    itemsToPack.get(x).setPacked(false);
                 }
 
                 do {
@@ -334,7 +302,8 @@ public class EB_AFIT implements PackingAlgorithm {
 
             if (hundredPercentPacked) break;
 
-            if ((container.length == container.height) && (container.height == container.width)) containerOrientationVariant = 6;
+            if ((container.getLength() == container.getHeight()) && (container.getHeight() == container.getWidth()))
+                containerOrientationVariant = 6;
 
             layers = new ArrayList<>();
         }
@@ -346,40 +315,50 @@ public class EB_AFIT implements PackingAlgorithm {
 /// </summary>
     private void findBox(double hmx, double hy, double hmy, double hz, double hmz) {
         int y;
-        bfx = 32767;
-        bfy = 32767;
-        bfz = 32767;
+        bfX = 32767;
+        bfY = 32767;
+        bfZ = 32767;
         bbfx = 32767;
         bbfy = 32767;
         bbfz = 32767;
-        boxi = 0;
-        bboxi = 0;
+        boxI = 0;
+        bBoxI = 0;
 
-        for (y = 1; y <= itemsToPackCount; y = y + itemsToPack.get(y).quantity) {
-            for (x = y; x < x + itemsToPack.get(y).quantity - 1; x++) {
-                if (!itemsToPack.get(x).isPacked) break;
+//        int x=0;
+        for (y = 1; y <= itemsToPackCount; y = y + itemsToPack.get(y).getQuantity()) {
+            for (x = y; x < x + itemsToPack.get(y).getQuantity() - 1; x++) {
+                if (!itemsToPack.get(x).isPacked()) break;
             }
 
-            if (itemsToPack.get(x).isPacked) continue;
+            if (itemsToPack.get(x).isPacked()) continue;
 
             if (x > itemsToPackCount) return;
 
-            analyzeBox(hmx, hy, hmy, hz, hmz, itemsToPack.get(x).dim1, itemsToPack.get(x).dim2, itemsToPack.get(x).dim3);
+            analyzeBox(hmx, hy, hmy, hz, hmz, itemsToPack.get(x).getDim1(), itemsToPack.get(x).getDim2(),
+                    itemsToPack.get(x).getDim3());
 
-            if ((itemsToPack.get(x).dim1 == itemsToPack.get(x).dim3) && (itemsToPack.get(x).dim3 == itemsToPack.get(x).dim2))
+            if ((itemsToPack.get(x).getDim1() == itemsToPack.get(x).getDim3()) && (itemsToPack.get(
+                    x).getDim3() == itemsToPack.get(x).getDim2()))
                 continue;
 
-            analyzeBox(hmx, hy, hmy, hz, hmz, itemsToPack.get(x).dim1, itemsToPack.get(x).dim3, itemsToPack.get(x).dim2);
-            analyzeBox(hmx, hy, hmy, hz, hmz, itemsToPack.get(x).dim2, itemsToPack.get(x).dim1, itemsToPack.get(x).dim3);
-            analyzeBox(hmx, hy, hmy, hz, hmz, itemsToPack.get(x).dim2, itemsToPack.get(x).dim3, itemsToPack.get(x).dim1);
-            analyzeBox(hmx, hy, hmy, hz, hmz, itemsToPack.get(x).dim3, itemsToPack.get(x).dim1, itemsToPack.get(x).dim2);
-            analyzeBox(hmx, hy, hmy, hz, hmz, itemsToPack.get(x).dim3, itemsToPack.get(x).dim2, itemsToPack.get(x).dim1);
+            analyzeBox(hmx, hy, hmy, hz, hmz, itemsToPack.get(x).getDim1(), itemsToPack.get(x).getDim3(),
+                    itemsToPack.get(x).getDim2());
+            analyzeBox(hmx, hy, hmy, hz, hmz, itemsToPack.get(x).getDim2(), itemsToPack.get(x).getDim1(),
+                    itemsToPack.get(x).getDim3());
+            analyzeBox(hmx, hy, hmy, hz, hmz, itemsToPack.get(x).getDim2(), itemsToPack.get(x).getDim3(),
+                    itemsToPack.get(x).getDim1());
+            analyzeBox(hmx, hy, hmy, hz, hmz, itemsToPack.get(x).getDim3(), itemsToPack.get(x).getDim1(),
+                    itemsToPack.get(x).getDim2());
+            analyzeBox(hmx, hy, hmy, hz, hmz, itemsToPack.get(x).getDim3(), itemsToPack.get(x).getDim2(),
+                    itemsToPack.get(x).getDim1());
         }
     }
 
-    /// <summary>
-/// Finds the most proper layer height by looking at the unpacked boxes and the remaining empty space available.
-/// </summary>
+    /**
+     * Finds the most proper layer height by looking at the unpacked boxes and the remaining empty space available.
+     *
+     * @param thickness - layer thickness
+     */
     private void findLayer(double thickness) {
         double exdim = 0;
         double dimdif;
@@ -393,26 +372,26 @@ public class EB_AFIT implements PackingAlgorithm {
         eval = 1000000;
 
         for (x = 1; x <= itemsToPackCount; x++) {
-            if (itemsToPack.get(x).isPacked) continue;
+            if (itemsToPack.get(x).isPacked()) continue;
 
             for (y = 1; y <= 3; y++) {
                 switch (y) {
                     case 1:
-                        exdim = itemsToPack.get(x).dim1;
-                        dimen2 = itemsToPack.get(x).dim2;
-                        dimen3 = itemsToPack.get(x).dim3;
+                        exdim = itemsToPack.get(x).getDim1();
+                        dimen2 = itemsToPack.get(x).getDim2();
+                        dimen3 = itemsToPack.get(x).getDim3();
                         break;
 
                     case 2:
-                        exdim = itemsToPack.get(x).dim2;
-                        dimen2 = itemsToPack.get(x).dim1;
-                        dimen3 = itemsToPack.get(x).dim3;
+                        exdim = itemsToPack.get(x).getDim2();
+                        dimen2 = itemsToPack.get(x).getDim1();
+                        dimen3 = itemsToPack.get(x).getDim3();
                         break;
 
                     case 3:
-                        exdim = itemsToPack.get(x).dim3;
-                        dimen2 = itemsToPack.get(x).dim1;
-                        dimen3 = itemsToPack.get(x).dim2;
+                        exdim = itemsToPack.get(x).getDim3();
+                        dimen2 = itemsToPack.get(x).getDim1();
+                        dimen3 = itemsToPack.get(x).getDim2();
                         break;
                 }
 
@@ -420,15 +399,15 @@ public class EB_AFIT implements PackingAlgorithm {
 
                 if ((exdim <= thickness) && (((dimen2 <= px) && (dimen3 <= pz)) || ((dimen3 <= px) && (dimen2 <= pz)))) {
                     for (z = 1; z <= itemsToPackCount; z++) {
-                        if (!(x == z) && !(itemsToPack.get(z).isPacked)) {
-                            dimdif = Math.abs(exdim - itemsToPack.get(z).dim1);
+                        if (!(x == z) && !(itemsToPack.get(z).isPacked())) {
+                            dimdif = Math.abs(exdim - itemsToPack.get(z).getDim1());
 
-                            if (Math.abs(exdim - itemsToPack.get(z).dim2) < dimdif) {
-                                dimdif = Math.abs(exdim - itemsToPack.get(z).dim2);
+                            if (Math.abs(exdim - itemsToPack.get(z).getDim2()) < dimdif) {
+                                dimdif = Math.abs(exdim - itemsToPack.get(z).getDim2());
                             }
 
-                            if (Math.abs(exdim - itemsToPack.get(z).dim3) < dimdif) {
-                                dimdif = Math.abs(exdim - itemsToPack.get(z).dim3);
+                            if (Math.abs(exdim - itemsToPack.get(z).getDim3()) < dimdif) {
+                                dimdif = Math.abs(exdim - itemsToPack.get(z).getDim3());
                             }
 
                             layereval = layereval + dimdif;
@@ -478,21 +457,21 @@ public class EB_AFIT implements PackingAlgorithm {
 
         items.forEach(item ->
         {
-            for (int i = 1; i <= item.quantity; i++) {
-                Item newItem = new Item(item.id, item.dim1, item.dim2, item.dim3, item.quantity);
+            for (int i = 1; i <= item.getQuantity(); i++) {
+                Item newItem = new Item(item.getId(), item.getDim1(), item.getDim2(), item.getDim3(), item.getQuantity());
                 itemsToPack.add(newItem);
             }
 
-            itemsToPackCount += item.quantity;
+            itemsToPackCount += item.getQuantity();
         });
 
         itemsToPack.add(new Item(0, 0, 0, 0, 0));
 
-        totalContainerVolume = container.length * container.height * container.width;
+        totalContainerVolume = container.getLength() * container.getHeight() * container.getWidth();
         totalItemVolume = 0.0D;
 
         for (x = 1; x <= itemsToPackCount; x++) {
-            totalItemVolume = totalItemVolume + itemsToPack.get(x).volume;
+            totalItemVolume = totalItemVolume + itemsToPack.get(x).getVolume();
         }
 
         scrapFirst = new ScrapPad();
@@ -524,21 +503,21 @@ public class EB_AFIT implements PackingAlgorithm {
             for (y = 1; y <= 3; y++) {
                 switch (y) {
                     case 1:
-                        exdim = itemsToPack.get(x).dim1;
-                        dimen2 = itemsToPack.get(x).dim2;
-                        dimen3 = itemsToPack.get(x).dim3;
+                        exdim = itemsToPack.get(x).getDim1();
+                        dimen2 = itemsToPack.get(x).getDim2();
+                        dimen3 = itemsToPack.get(x).getDim3();
                         break;
 
                     case 2:
-                        exdim = itemsToPack.get(x).dim2;
-                        dimen2 = itemsToPack.get(x).dim1;
-                        dimen3 = itemsToPack.get(x).dim3;
+                        exdim = itemsToPack.get(x).getDim2();
+                        dimen2 = itemsToPack.get(x).getDim1();
+                        dimen3 = itemsToPack.get(x).getDim3();
                         break;
 
                     case 3:
-                        exdim = itemsToPack.get(x).dim3;
-                        dimen2 = itemsToPack.get(x).dim1;
-                        dimen3 = itemsToPack.get(x).dim2;
+                        exdim = itemsToPack.get(x).getDim3();
+                        dimen2 = itemsToPack.get(x).getDim1();
+                        dimen3 = itemsToPack.get(x).getDim2();
                         break;
                 }
 
@@ -559,13 +538,13 @@ public class EB_AFIT implements PackingAlgorithm {
 
                 for (z = 1; z <= itemsToPackCount; z++) {
                     if (!(x == z)) {
-                        dimdif = Math.abs(exdim - itemsToPack.get(z).dim1);
+                        dimdif = Math.abs(exdim - itemsToPack.get(z).getDim1());
 
-                        if (Math.abs(exdim - itemsToPack.get(z).dim2) < dimdif) {
-                            dimdif = Math.abs(exdim - itemsToPack.get(z).dim2);
+                        if (Math.abs(exdim - itemsToPack.get(z).getDim2()) < dimdif) {
+                            dimdif = Math.abs(exdim - itemsToPack.get(z).getDim2());
                         }
-                        if (Math.abs(exdim - itemsToPack.get(z).dim3) < dimdif) {
-                            dimdif = Math.abs(exdim - itemsToPack.get(z).dim3);
+                        if (Math.abs(exdim - itemsToPack.get(z).getDim3()) < dimdif) {
+                            dimdif = Math.abs(exdim - itemsToPack.get(z).getDim3());
                         }
                         layereval = layereval + dimdif;
                     }
@@ -594,68 +573,68 @@ public class EB_AFIT implements PackingAlgorithm {
 
         switch (bestVariant) {
             case 1:
-                packCoordX = itemsToPack.get(cboxi).coordX;
-                packCoordY = itemsToPack.get(cboxi).coordY;
-                packCoordZ = itemsToPack.get(cboxi).coordZ;
-                packDimX = itemsToPack.get(cboxi).packDimX;
-                packDimY = itemsToPack.get(cboxi).packDimY;
-                packDimZ = itemsToPack.get(cboxi).packDimZ;
+                packCoordX = itemsToPack.get(cBoxI).getCoordX();
+                packCoordY = itemsToPack.get(cBoxI).getCoordY();
+                packCoordZ = itemsToPack.get(cBoxI).getCoordZ();
+                packDimX = itemsToPack.get(cBoxI).getPackDimX();
+                packDimY = itemsToPack.get(cBoxI).getPackDimY();
+                packDimZ = itemsToPack.get(cBoxI).getPackDimZ();
                 break;
 
             case 2:
-                packCoordX = itemsToPack.get(cboxi).coordZ;
-                packCoordY = itemsToPack.get(cboxi).coordY;
-                packCoordZ = itemsToPack.get(cboxi).coordX;
-                packDimX = itemsToPack.get(cboxi).packDimZ;
-                packDimY = itemsToPack.get(cboxi).packDimY;
-                packDimZ = itemsToPack.get(cboxi).packDimX;
+                packCoordX = itemsToPack.get(cBoxI).getCoordZ();
+                packCoordY = itemsToPack.get(cBoxI).getCoordY();
+                packCoordZ = itemsToPack.get(cBoxI).getCoordX();
+                packDimX = itemsToPack.get(cBoxI).getPackDimZ();
+                packDimY = itemsToPack.get(cBoxI).getPackDimY();
+                packDimZ = itemsToPack.get(cBoxI).getPackDimX();
                 break;
 
             case 3:
-                packCoordX = itemsToPack.get(cboxi).coordY;
-                packCoordY = itemsToPack.get(cboxi).coordZ;
-                packCoordZ = itemsToPack.get(cboxi).coordX;
-                packDimX = itemsToPack.get(cboxi).packDimY;
-                packDimY = itemsToPack.get(cboxi).packDimZ;
-                packDimZ = itemsToPack.get(cboxi).packDimX;
+                packCoordX = itemsToPack.get(cBoxI).getCoordY();
+                packCoordY = itemsToPack.get(cBoxI).getCoordZ();
+                packCoordZ = itemsToPack.get(cBoxI).getCoordX();
+                packDimX = itemsToPack.get(cBoxI).getPackDimY();
+                packDimY = itemsToPack.get(cBoxI).getPackDimZ();
+                packDimZ = itemsToPack.get(cBoxI).getPackDimX();
                 break;
 
             case 4:
-                packCoordX = itemsToPack.get(cboxi).coordY;
-                packCoordY = itemsToPack.get(cboxi).coordX;
-                packCoordZ = itemsToPack.get(cboxi).coordZ;
-                packDimX = itemsToPack.get(cboxi).packDimY;
-                packDimY = itemsToPack.get(cboxi).packDimX;
-                packDimZ = itemsToPack.get(cboxi).packDimZ;
+                packCoordX = itemsToPack.get(cBoxI).getCoordY();
+                packCoordY = itemsToPack.get(cBoxI).getCoordX();
+                packCoordZ = itemsToPack.get(cBoxI).getCoordZ();
+                packDimX = itemsToPack.get(cBoxI).getPackDimY();
+                packDimY = itemsToPack.get(cBoxI).getPackDimX();
+                packDimZ = itemsToPack.get(cBoxI).getPackDimZ();
                 break;
 
             case 5:
-                packCoordX = itemsToPack.get(cboxi).coordX;
-                packCoordY = itemsToPack.get(cboxi).coordZ;
-                packCoordZ = itemsToPack.get(cboxi).coordY;
-                packDimX = itemsToPack.get(cboxi).packDimX;
-                packDimY = itemsToPack.get(cboxi).packDimZ;
-                packDimZ = itemsToPack.get(cboxi).packDimY;
+                packCoordX = itemsToPack.get(cBoxI).getCoordX();
+                packCoordY = itemsToPack.get(cBoxI).getCoordZ();
+                packCoordZ = itemsToPack.get(cBoxI).getCoordY();
+                packDimX = itemsToPack.get(cBoxI).getPackDimX();
+                packDimY = itemsToPack.get(cBoxI).getPackDimZ();
+                packDimZ = itemsToPack.get(cBoxI).getPackDimY();
                 break;
 
             case 6:
-                packCoordX = itemsToPack.get(cboxi).coordZ;
-                packCoordY = itemsToPack.get(cboxi).coordX;
-                packCoordZ = itemsToPack.get(cboxi).coordY;
-                packDimX = itemsToPack.get(cboxi).packDimZ;
-                packDimY = itemsToPack.get(cboxi).packDimX;
-                packDimZ = itemsToPack.get(cboxi).packDimY;
+                packCoordX = itemsToPack.get(cBoxI).getCoordZ();
+                packCoordY = itemsToPack.get(cBoxI).getCoordX();
+                packCoordZ = itemsToPack.get(cBoxI).getCoordY();
+                packDimX = itemsToPack.get(cBoxI).getPackDimZ();
+                packDimY = itemsToPack.get(cBoxI).getPackDimX();
+                packDimZ = itemsToPack.get(cBoxI).getPackDimY();
                 break;
         }
 
-        itemsToPack.get(cboxi).coordX = packCoordX;
-        itemsToPack.get(cboxi).coordY = packCoordY;
-        itemsToPack.get(cboxi).coordZ = packCoordZ;
-        itemsToPack.get(cboxi).packDimX = packDimX;
-        itemsToPack.get(cboxi).packDimY = packDimY;
-        itemsToPack.get(cboxi).packDimZ = packDimZ;
+        itemsToPack.get(cBoxI).setCoordX(packCoordX);
+        itemsToPack.get(cBoxI).setCoordY(packCoordY);
+        itemsToPack.get(cBoxI).setCoordZ(packCoordZ);
+        itemsToPack.get(cBoxI).setPackDimX(packDimX);
+        itemsToPack.get(cBoxI).setPackDimY(packDimY);
+        itemsToPack.get(cBoxI).setPackDimZ(packDimZ);
 
-        itemsPackedInOrder.add(itemsToPack.get(cboxi));
+        itemsPackedInOrder.add(itemsToPack.get(cBoxI));
     }
 
     /// <summary>
@@ -688,9 +667,9 @@ public class EB_AFIT implements PackingAlgorithm {
                 if (layerDone) break;
                 if (evened) continue;
 
-                itemsToPack.get(cboxi).coordX = 0;
-                itemsToPack.get(cboxi).coordY = packedy;
-                itemsToPack.get(cboxi).coordZ = smallestZ.cumZ;
+                itemsToPack.get(cBoxI).setCoordX(0);
+                itemsToPack.get(cBoxI).setCoordY(packedy);
+                itemsToPack.get(cBoxI).setCoordZ(smallestZ.cumZ);
                 if (cboxx == smallestZ.cumX) {
                     smallestZ.cumZ = smallestZ.cumZ + cboxz;
                 } else {
@@ -715,15 +694,14 @@ public class EB_AFIT implements PackingAlgorithm {
                 if (layerDone) break;
                 if (evened) continue;
 
-                itemsToPack.get(cboxi).coordY = packedy;
-                itemsToPack.get(cboxi).coordZ = smallestZ.cumZ;
+                itemsToPack.get(cBoxI).setCoordY(packedy);
+                itemsToPack.get(cBoxI).setCoordZ(smallestZ.cumZ);
                 if (cboxx == smallestZ.cumX) {
-                    itemsToPack.get(cboxi).coordX = 0;
+                    itemsToPack.get(cBoxI).setCoordX(0);
 
                     if (smallestZ.cumZ + cboxz == smallestZ.post.cumZ) {
                         smallestZ.cumZ = smallestZ.post.cumZ;
                         smallestZ.cumX = smallestZ.post.cumX;
-                        trash = smallestZ.post;
                         smallestZ.post = smallestZ.post.post;
 
                         if (smallestZ.post != null) {
@@ -733,7 +711,7 @@ public class EB_AFIT implements PackingAlgorithm {
                         smallestZ.cumZ = smallestZ.cumZ + cboxz;
                     }
                 } else {
-                    itemsToPack.get(cboxi).coordX = smallestZ.cumX - cboxx;
+                    itemsToPack.get(cBoxI).setCoordX(smallestZ.cumX - cboxx);
 
                     if (smallestZ.cumZ + cboxz == smallestZ.post.cumZ) {
                         smallestZ.cumX = smallestZ.cumX - cboxx;
@@ -760,9 +738,9 @@ public class EB_AFIT implements PackingAlgorithm {
                 if (layerDone) break;
                 if (evened) continue;
 
-                itemsToPack.get(cboxi).coordY = packedy;
-                itemsToPack.get(cboxi).coordZ = smallestZ.cumZ;
-                itemsToPack.get(cboxi).coordX = smallestZ.pre.cumX;
+                itemsToPack.get(cBoxI).setCoordY(packedy);
+                itemsToPack.get(cBoxI).setCoordZ(smallestZ.cumZ);
+                itemsToPack.get(cBoxI).setCoordX(smallestZ.pre.cumX);
 
                 if (cboxx == smallestZ.cumX - smallestZ.pre.cumX) {
                     if (smallestZ.cumZ + cboxz == smallestZ.pre.cumZ) {
@@ -799,11 +777,11 @@ public class EB_AFIT implements PackingAlgorithm {
                 if (layerDone) break;
                 if (evened) continue;
 
-                itemsToPack.get(cboxi).coordY = packedy;
-                itemsToPack.get(cboxi).coordZ = smallestZ.cumZ;
+                itemsToPack.get(cBoxI).setCoordY(packedy);
+                itemsToPack.get(cBoxI).setCoordZ(smallestZ.cumZ);
 
                 if (cboxx == smallestZ.cumX - smallestZ.pre.cumX) {
-                    itemsToPack.get(cboxi).coordX = smallestZ.pre.cumX;
+                    itemsToPack.get(cBoxI).setCoordX(smallestZ.pre.cumX);
 
                     if (smallestZ.cumZ + cboxz == smallestZ.post.cumZ) {
                         smallestZ.pre.cumX = smallestZ.post.cumX;
@@ -820,9 +798,9 @@ public class EB_AFIT implements PackingAlgorithm {
                 } else if (smallestZ.pre.cumX < px - smallestZ.cumX) {
                     if (smallestZ.cumZ + cboxz == smallestZ.pre.cumZ) {
                         smallestZ.cumX = smallestZ.cumX - cboxx;
-                        itemsToPack.get(cboxi).coordX = smallestZ.cumX - cboxx;
+                        itemsToPack.get(cBoxI).setCoordX(smallestZ.cumX - cboxx);
                     } else {
-                        itemsToPack.get(cboxi).coordX = smallestZ.pre.cumX;
+                        itemsToPack.get(cBoxI).setCoordX(smallestZ.pre.cumX);
                         smallestZ.pre.post = new ScrapPad();
 
                         smallestZ.pre.post.pre = smallestZ.pre;
@@ -834,9 +812,9 @@ public class EB_AFIT implements PackingAlgorithm {
                 } else {
                     if (smallestZ.cumZ + cboxz == smallestZ.pre.cumZ) {
                         smallestZ.pre.cumX = smallestZ.pre.cumX + cboxx;
-                        itemsToPack.get(cboxi).coordX = smallestZ.pre.cumX;
+                        itemsToPack.get(cBoxI).setCoordX(smallestZ.pre.cumX);
                     } else {
-                        itemsToPack.get(cboxi).coordX = smallestZ.cumX - cboxx;
+                        itemsToPack.get(cBoxI).setCoordX(smallestZ.cumX - cboxx);
                         smallestZ.post.pre = new ScrapPad();
 
                         smallestZ.post.pre.post = smallestZ.post;
@@ -859,9 +837,9 @@ public class EB_AFIT implements PackingAlgorithm {
                 if (layerDone) break;
                 if (evened) continue;
 
-                itemsToPack.get(cboxi).coordY = packedy;
-                itemsToPack.get(cboxi).coordZ = smallestZ.cumZ;
-                itemsToPack.get(cboxi).coordX = smallestZ.pre.cumX;
+                itemsToPack.get(cBoxI).setCoordY(packedy);
+                itemsToPack.get(cBoxI).setCoordZ(smallestZ.cumZ);
+                itemsToPack.get(cBoxI).setCoordX(smallestZ.pre.cumX);
 
                 if (cboxx == (smallestZ.cumX - smallestZ.pre.cumX)) {
                     if ((smallestZ.cumZ + cboxz) == smallestZ.pre.cumZ) {
@@ -875,7 +853,7 @@ public class EB_AFIT implements PackingAlgorithm {
                     if ((smallestZ.cumZ + cboxz) == smallestZ.pre.cumZ) {
                         smallestZ.pre.cumX = smallestZ.pre.cumX + cboxx;
                     } else if (smallestZ.cumZ + cboxz == smallestZ.post.cumZ) {
-                        itemsToPack.get(cboxi).coordX = smallestZ.cumX - cboxx;
+                        itemsToPack.get(cBoxI).setCoordX(smallestZ.cumX - cboxx);
                         smallestZ.cumX = smallestZ.cumX - cboxx;
                     } else {
                         smallestZ.pre.post = new ScrapPad();
@@ -908,22 +886,22 @@ public class EB_AFIT implements PackingAlgorithm {
 
         switch (bestVariant) {
             case 1:
-                changeVariant(container.length, container.height, container.width);
+                changeVariant(container.getLength(), container.getHeight(), container.getWidth());
                 break;
             case 2:
-                changeVariant(container.width, container.height, container.length);
+                changeVariant(container.getWidth(), container.getHeight(), container.getLength());
                 break;
             case 3:
-                changeVariant(container.width, container.length, container.height);
+                changeVariant(container.getWidth(), container.getLength(), container.getHeight());
                 break;
             case 4:
-                changeVariant(container.height, container.length, container.width);
+                changeVariant(container.getHeight(), container.getLength(), container.getWidth());
                 break;
             case 5:
-                changeVariant(container.length, container.width, container.height);
+                changeVariant(container.getLength(), container.getWidth(), container.getHeight());
                 break;
             case 6:
-                changeVariant(container.height, container.width, container.length);
+                changeVariant(container.getHeight(), container.getWidth(), container.getLength());
                 break;
         }
 
@@ -946,7 +924,7 @@ public class EB_AFIT implements PackingAlgorithm {
         remainpz = pz;
 
         for (x = 1; x <= itemsToPackCount; x++) {
-            itemsToPack.get(x).isPacked = false;
+            itemsToPack.get(x).setPacked(false);
         }
 
         do {
@@ -980,12 +958,11 @@ public class EB_AFIT implements PackingAlgorithm {
      * After packing of each item, the 100% packing condition is checked.
      */
     private void volumeCheck() {
-        itemsToPack.get(cboxi).isPacked = true;
-        itemsToPack.get(cboxi).packDimX = cboxx;
-        itemsToPack.get(cboxi).packDimY = cboxy;
-        itemsToPack.get(cboxi).packDimZ = cboxz;
-        packedVolume = packedVolume + itemsToPack.get(cboxi).volume;
-        packedItemCount++;
+        itemsToPack.get(cBoxI).setPacked(true);
+        itemsToPack.get(cBoxI).setPackDimX(cboxx);
+        itemsToPack.get(cBoxI).setPackDimY(cboxy);
+        itemsToPack.get(cBoxI).setPackDimZ(cboxz);
+        packedVolume = packedVolume + itemsToPack.get(cBoxI).getVolume();
 
         if (packingBest) {
             outputBoxList();

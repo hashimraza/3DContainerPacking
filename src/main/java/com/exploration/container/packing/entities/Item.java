@@ -6,26 +6,26 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class Item {
-    public int id;
-    public boolean isPacked;
-    public double dim1;
-    public double dim2;
-    public double dim3;
-    public double coordX;
-    public double coordY;
-    public double coordZ;
-    public int quantity;
-    public double packDimX;
-    public double packDimY;
-    public double packDimZ;
-    public double volume;
+    private int id;
+    private boolean isPacked;
+    private double dim1;
+    private double dim2;
+    private double dim3;
+    private double coordX;
+    private double coordY;
+    private double coordZ;
+    private int quantity;
+    private double packDimX;
+    private double packDimY;
+    private double packDimZ;
+    private double volume;
 
     public Item(int id, double dim1, double dim2, double dim3, int quantity) {
-        this.id = id;
-        this.dim1 = dim1;
-        this.dim2 = dim2;
-        this.dim3 = dim3;
-        this.volume = dim1 * dim2 * dim3;
-        this.quantity = quantity;
+        this.setId(id);
+        this.setDim1(dim1);
+        this.setDim2(dim2);
+        this.setDim3(dim3);
+        this.setVolume(dim1 * dim2 * dim3);
+        this.setQuantity(quantity);
     }
 }

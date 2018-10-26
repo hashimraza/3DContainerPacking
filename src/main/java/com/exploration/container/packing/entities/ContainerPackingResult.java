@@ -1,13 +1,16 @@
 package com.exploration.container.packing.entities;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
 public class ContainerPackingResult {
-    public int containerId;
-    public List<AlgorithmPackingResult> algorithmPackingResults;
+    private int containerId;
+    private List<AlgorithmPackingResult> algorithmPackingResults;
 
     public ContainerPackingResult() {
-        this.algorithmPackingResults = new ArrayList<>();
+        this.setAlgorithmPackingResults(new ArrayList<>());
     }
 }
