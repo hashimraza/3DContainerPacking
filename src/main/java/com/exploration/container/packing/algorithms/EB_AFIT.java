@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /// A 3D bin packing algorithm originally ported from https://github.com/keremdemirer/3dbinpackingjs,
 /// which itself was a JavaScript port of https://github.com/wknechtel/3d-bin-pack/, which is a C reconstruction
@@ -95,10 +96,7 @@ public class EB_AFIT implements PackingAlgorithm {
 
         result.setPackedItems(itemsPackedInOrder);
 
-
-        if (result.getUnpackedItems().size() == 0) {
-            result.setCompletePack(true);
-        }
+        result.setCompletePack(result.getUnpackedItems().size() == 0);
 
         return result;
     }
@@ -148,10 +146,10 @@ public class EB_AFIT implements PackingAlgorithm {
             cboxy = boxY;
             cboxz = boxZ;
         } else {
-            if ((bBoxI > 0) && (layerinlayer != 0 || (smallestZ.pre == null && smallestZ.post == null))) {
+            if ((bBoxI > 0) && (layerinlayer != 0 || (smallestZ.getPre() == null && smallestZ.getPost() == null))) {
                 if (layerinlayer == 0) {
                     prelayer = layerThickness;
-                    lilz = smallestZ.cumZ;
+                    lilz = smallestZ.getCumZ();
                 }
 
                 cBoxI = bBoxI;
@@ -161,36 +159,36 @@ public class EB_AFIT implements PackingAlgorithm {
                 layerinlayer = layerinlayer + bBoxY - layerThickness;
                 layerThickness = bBoxY;
             } else {
-                if (smallestZ.pre == null && smallestZ.post == null) {
+                if (smallestZ.getPre() == null && smallestZ.getPost() == null) {
                     layerDone = true;
                 } else {
                     evened = true;
 
-                    if (smallestZ.pre == null) {
-                        smallestZ.cumX = smallestZ.post.cumX;
-                        smallestZ.cumZ = smallestZ.post.cumZ;
-                        smallestZ.post = smallestZ.post.post;
-                        if (smallestZ.post != null) {
-                            smallestZ.post.pre = smallestZ;
+                    if (smallestZ.getPre() == null) {
+                        smallestZ.setCumX(smallestZ.getPost().getCumX());
+                        smallestZ.setCumZ(smallestZ.getPost().getCumZ());
+                        smallestZ.setPost(smallestZ.getPost().getPost());
+                        if (smallestZ.getPost() != null) {
+                            smallestZ.getPost().setPre(smallestZ);
                         }
-                    } else if (smallestZ.post == null) {
-                        smallestZ.pre.post = null;
-                        smallestZ.pre.cumX = smallestZ.cumX;
+                    } else if (smallestZ.getPost() == null) {
+                        smallestZ.getPre().setPost(null);
+                        smallestZ.getPre().setCumX(smallestZ.getCumX());
                     } else {
-                        if (smallestZ.pre.cumZ == smallestZ.post.cumZ) {
-                            smallestZ.pre.post = smallestZ.post.post;
+                        if (smallestZ.getPre().getCumZ() == smallestZ.getPost().getCumZ()) {
+                            smallestZ.getPre().setPost(smallestZ.getPost().getPost());
 
-                            if (smallestZ.post.post != null) {
-                                smallestZ.post.post.pre = smallestZ.pre;
+                            if (smallestZ.getPost().getPost() != null) {
+                                smallestZ.getPost().getPost().setPre(smallestZ.getPre());
                             }
 
-                            smallestZ.pre.cumX = smallestZ.post.cumX;
+                            smallestZ.getPre().setCumX(smallestZ.getPost().getCumX());
                         } else {
-                            smallestZ.pre.post = smallestZ.post;
-                            smallestZ.post.pre = smallestZ.pre;
+                            smallestZ.getPre().setPost(smallestZ.getPost());
+                            smallestZ.getPost().setPre(smallestZ.getPre());
 
-                            if (smallestZ.pre.cumZ < smallestZ.post.cumZ) {
-                                smallestZ.pre.cumX = smallestZ.cumX;
+                            if (smallestZ.getPre().getCumZ() < smallestZ.getPost().getCumZ()) {
+                                smallestZ.getPre().setCumX(smallestZ.getCumX());
                             }
                         }
                     }
@@ -247,7 +245,7 @@ public class EB_AFIT implements PackingAlgorithm {
             }
 
             layers.add(new Layer(0, -1));
-            listCanditLayers();
+            listCandidateLayers();
             layers = layers.stream().sorted(Comparator.comparingDouble(l -> l.layerEval)).collect(Collectors.toList());
 
             for (layersIndex = 1; (layersIndex <= layerListLen) && !quit; layersIndex++) {
@@ -432,18 +430,21 @@ public class EB_AFIT implements PackingAlgorithm {
         ScrapPad scrapmemb = scrapFirst;
         smallestZ = scrapmemb;
 
-        while (scrapmemb.post != null) {
-            if (scrapmemb.post.cumZ < smallestZ.cumZ) {
-                smallestZ = scrapmemb.post;
+        while (scrapmemb.getPost() != null) {
+            if (scrapmemb.getPost().getCumZ() < smallestZ.getCumZ()) {
+                smallestZ = scrapmemb.getPost();
             }
 
-            scrapmemb = scrapmemb.post;
+            scrapmemb = scrapmemb.getPost();
         }
     }
 
-    /// <summary>
-/// Initializes everything.
-/// </summary>
+    /**
+     * Initializes everything.
+     *
+     * @param container - Container in which to pack
+     * @param items     - items to pack
+     */
     private void initialize(Container container, List<Item> items) {
         itemsToPack = new ArrayList<>();
         itemsPackedInOrder = new ArrayList<>();
@@ -455,29 +456,23 @@ public class EB_AFIT implements PackingAlgorithm {
         layers = new ArrayList<>();
         itemsToPackCount = 0;
 
-        items.forEach(item ->
-        {
-            for (int i = 1; i <= item.getQuantity(); i++) {
-                Item newItem = new Item(item.getId(), item.getDim1(), item.getDim2(), item.getDim3(), item.getQuantity());
-                itemsToPack.add(newItem);
-            }
-
-            itemsToPackCount += item.getQuantity();
+        items.forEach(item -> {
+            itemsToPackCount += Stream
+                    .generate(() -> new Item(item.getId(), item.getDim1(), item.getDim2(), item.getDim3(), item.getQuantity()))
+                    .limit(item.getQuantity())
+                    .map(itemsToPack::add)
+                    .count();
         });
 
         itemsToPack.add(new Item(0, 0, 0, 0, 0));
 
         totalContainerVolume = container.getLength() * container.getHeight() * container.getWidth();
-        totalItemVolume = 0.0D;
-
-        for (x = 1; x <= itemsToPackCount; x++) {
-            totalItemVolume = totalItemVolume + itemsToPack.get(x).getVolume();
-        }
+        totalItemVolume = itemsToPack.stream().mapToDouble(Item::getVolume).sum();
 
         scrapFirst = new ScrapPad();
 
-        scrapFirst.pre = null;
-        scrapFirst.post = null;
+        scrapFirst.setPre(null);
+        scrapFirst.setPost(null);
         packingBest = false;
         hundredPercentPacked = false;
         quit = false;
@@ -486,7 +481,7 @@ public class EB_AFIT implements PackingAlgorithm {
     /// <summary>
 /// Lists all possible layer heights by giving a weight value to each of them.
 /// </summary>
-    private void listCanditLayers() {
+    private void listCandidateLayers() {
         boolean same;
         double exdim = 0;
         double dimdif;
@@ -650,17 +645,17 @@ public class EB_AFIT implements PackingAlgorithm {
             return;
         }
 
-        scrapFirst.cumX = px;
-        scrapFirst.cumZ = 0;
+        scrapFirst.setCumX(px);
+        scrapFirst.setCumZ(0);
 
         for (; !quit; ) {
             findSmallestZ();
 
-            if ((smallestZ.pre == null) && (smallestZ.post == null)) {
+            if ((smallestZ.getPre() == null) && (smallestZ.getPost() == null)) {
                 //*** SITUATION-1: NO BOXES ON THE RIGHT AND LEFT SIDES ***
 
-                lenx = smallestZ.cumX;
-                lpz = remainpz - smallestZ.cumZ;
+                lenx = smallestZ.getCumX();
+                lpz = remainpz - smallestZ.getCumZ();
                 findBox(lenx, layerThickness, remainpy, lpz, lpz);
                 checkFound();
 
@@ -669,25 +664,25 @@ public class EB_AFIT implements PackingAlgorithm {
 
                 itemsToPack.get(cBoxI).setCoordX(0);
                 itemsToPack.get(cBoxI).setCoordY(packedy);
-                itemsToPack.get(cBoxI).setCoordZ(smallestZ.cumZ);
-                if (cboxx == smallestZ.cumX) {
-                    smallestZ.cumZ = smallestZ.cumZ + cboxz;
+                itemsToPack.get(cBoxI).setCoordZ(smallestZ.getCumZ());
+                if (cboxx == smallestZ.getCumX()) {
+                    smallestZ.setCumZ(smallestZ.getCumZ() + cboxz);
                 } else {
-                    smallestZ.post = new ScrapPad();
+                    smallestZ.setPost(new ScrapPad());
 
-                    smallestZ.post.post = null;
-                    smallestZ.post.pre = smallestZ;
-                    smallestZ.post.cumX = smallestZ.cumX;
-                    smallestZ.post.cumZ = smallestZ.cumZ;
-                    smallestZ.cumX = cboxx;
-                    smallestZ.cumZ = smallestZ.cumZ + cboxz;
+                    smallestZ.getPost().setPost(null);
+                    smallestZ.getPost().setPre(smallestZ);
+                    smallestZ.getPost().setCumX(smallestZ.getCumX());
+                    smallestZ.getPost().setCumZ(smallestZ.getCumZ());
+                    smallestZ.setCumX(cboxx);
+                    smallestZ.setCumZ(smallestZ.getCumZ() + cboxz);
                 }
-            } else if (smallestZ.pre == null) {
+            } else if (smallestZ.getPre() == null) {
                 //*** SITUATION-2: NO BOXES ON THE LEFT SIDE ***
 
-                lenx = smallestZ.cumX;
-                lenz = smallestZ.post.cumZ - smallestZ.cumZ;
-                lpz = remainpz - smallestZ.cumZ;
+                lenx = smallestZ.getCumX();
+                lenz = smallestZ.getPost().getCumZ() - smallestZ.getCumZ();
+                lpz = remainpz - smallestZ.getCumZ();
                 findBox(lenx, layerThickness, remainpy, lenz, lpz);
                 checkFound();
 
@@ -695,43 +690,43 @@ public class EB_AFIT implements PackingAlgorithm {
                 if (evened) continue;
 
                 itemsToPack.get(cBoxI).setCoordY(packedy);
-                itemsToPack.get(cBoxI).setCoordZ(smallestZ.cumZ);
-                if (cboxx == smallestZ.cumX) {
+                itemsToPack.get(cBoxI).setCoordZ(smallestZ.getCumZ());
+                if (cboxx == smallestZ.getCumX()) {
                     itemsToPack.get(cBoxI).setCoordX(0);
 
-                    if (smallestZ.cumZ + cboxz == smallestZ.post.cumZ) {
-                        smallestZ.cumZ = smallestZ.post.cumZ;
-                        smallestZ.cumX = smallestZ.post.cumX;
-                        smallestZ.post = smallestZ.post.post;
+                    if (smallestZ.getCumZ() + cboxz == smallestZ.getPost().getCumZ()) {
+                        smallestZ.setCumZ(smallestZ.getPost().getCumZ());
+                        smallestZ.setCumX(smallestZ.getPost().getCumX());
+                        smallestZ.setPost(smallestZ.getPost().getPost());
 
-                        if (smallestZ.post != null) {
-                            smallestZ.post.pre = smallestZ;
+                        if (smallestZ.getPost() != null) {
+                            smallestZ.getPost().setPre(smallestZ);
                         }
                     } else {
-                        smallestZ.cumZ = smallestZ.cumZ + cboxz;
+                        smallestZ.setCumZ(smallestZ.getCumZ() + cboxz);
                     }
                 } else {
-                    itemsToPack.get(cBoxI).setCoordX(smallestZ.cumX - cboxx);
+                    itemsToPack.get(cBoxI).setCoordX(smallestZ.getCumX() - cboxx);
 
-                    if (smallestZ.cumZ + cboxz == smallestZ.post.cumZ) {
-                        smallestZ.cumX = smallestZ.cumX - cboxx;
+                    if (smallestZ.getCumZ() + cboxz == smallestZ.getPost().getCumZ()) {
+                        smallestZ.setCumX(smallestZ.getCumX() - cboxx);
                     } else {
-                        smallestZ.post.pre = new ScrapPad();
+                        smallestZ.getPost().setPre(new ScrapPad());
 
-                        smallestZ.post.pre.post = smallestZ.post;
-                        smallestZ.post.pre.pre = smallestZ;
-                        smallestZ.post = smallestZ.post.pre;
-                        smallestZ.post.cumX = smallestZ.cumX;
-                        smallestZ.cumX = smallestZ.cumX - cboxx;
-                        smallestZ.post.cumZ = smallestZ.cumZ + cboxz;
+                        smallestZ.getPost().getPre().setPost(smallestZ.getPost());
+                        smallestZ.getPost().getPre().setPre(smallestZ);
+                        smallestZ.setPost(smallestZ.getPost().getPre());
+                        smallestZ.getPost().setCumX(smallestZ.getCumX());
+                        smallestZ.setCumX(smallestZ.getCumX() - cboxx);
+                        smallestZ.getPost().setCumZ(smallestZ.getCumZ() + cboxz);
                     }
                 }
-            } else if (smallestZ.post == null) {
+            } else if (smallestZ.getPost() == null) {
                 //*** SITUATION-3: NO BOXES ON THE RIGHT SIDE ***
 
-                lenx = smallestZ.cumX - smallestZ.pre.cumX;
-                lenz = smallestZ.pre.cumZ - smallestZ.cumZ;
-                lpz = remainpz - smallestZ.cumZ;
+                lenx = smallestZ.getCumX() - smallestZ.getPre().getCumX();
+                lenz = smallestZ.getPre().getCumZ() - smallestZ.getCumZ();
+                lpz = remainpz - smallestZ.getCumZ();
                 findBox(lenx, layerThickness, remainpy, lenz, lpz);
                 checkFound();
 
@@ -739,37 +734,37 @@ public class EB_AFIT implements PackingAlgorithm {
                 if (evened) continue;
 
                 itemsToPack.get(cBoxI).setCoordY(packedy);
-                itemsToPack.get(cBoxI).setCoordZ(smallestZ.cumZ);
-                itemsToPack.get(cBoxI).setCoordX(smallestZ.pre.cumX);
+                itemsToPack.get(cBoxI).setCoordZ(smallestZ.getCumZ());
+                itemsToPack.get(cBoxI).setCoordX(smallestZ.getPre().getCumX());
 
-                if (cboxx == smallestZ.cumX - smallestZ.pre.cumX) {
-                    if (smallestZ.cumZ + cboxz == smallestZ.pre.cumZ) {
-                        smallestZ.pre.cumX = smallestZ.cumX;
-                        smallestZ.pre.post = null;
+                if (cboxx == smallestZ.getCumX() - smallestZ.getPre().getCumX()) {
+                    if (smallestZ.getCumZ() + cboxz == smallestZ.getPre().getCumZ()) {
+                        smallestZ.getPre().setCumX(smallestZ.getCumX());
+                        smallestZ.getPre().setPost(null);
                     } else {
-                        smallestZ.cumZ = smallestZ.cumZ + cboxz;
+                        smallestZ.setCumZ(smallestZ.getCumZ() + cboxz);
                     }
                 } else {
-                    if (smallestZ.cumZ + cboxz == smallestZ.pre.cumZ) {
-                        smallestZ.pre.cumX = smallestZ.pre.cumX + cboxx;
+                    if (smallestZ.getCumZ() + cboxz == smallestZ.getPre().getCumZ()) {
+                        smallestZ.getPre().setCumX(smallestZ.getPre().getCumX() + cboxx);
                     } else {
-                        smallestZ.pre.post = new ScrapPad();
+                        smallestZ.getPre().setPost(new ScrapPad());
 
-                        smallestZ.pre.post.pre = smallestZ.pre;
-                        smallestZ.pre.post.post = smallestZ;
-                        smallestZ.pre = smallestZ.pre.post;
-                        smallestZ.pre.cumX = smallestZ.pre.pre.cumX + cboxx;
-                        smallestZ.pre.cumZ = smallestZ.cumZ + cboxz;
+                        smallestZ.getPre().getPost().setPre(smallestZ.getPre());
+                        smallestZ.getPre().getPost().setPost(smallestZ);
+                        smallestZ.setPre(smallestZ.getPre().getPost());
+                        smallestZ.getPre().setCumX(smallestZ.getPre().getPre().getCumX() + cboxx);
+                        smallestZ.getPre().setCumZ(smallestZ.getCumZ() + cboxz);
                     }
                 }
-            } else if (smallestZ.pre.cumZ == smallestZ.post.cumZ) {
+            } else if (smallestZ.getPre().getCumZ() == smallestZ.getPost().getCumZ()) {
                 //*** SITUATION-4: THERE ARE BOXES ON BOTH OF THE SIDES ***
 
                 //*** SUBSITUATION-4A: SIDES ARE EQUAL TO EACH OTHER ***
 
-                lenx = smallestZ.cumX - smallestZ.pre.cumX;
-                lenz = smallestZ.pre.cumZ - smallestZ.cumZ;
-                lpz = remainpz - smallestZ.cumZ;
+                lenx = smallestZ.getCumX() - smallestZ.getPre().getCumX();
+                lenz = smallestZ.getPre().getCumZ() - smallestZ.getCumZ();
+                lpz = remainpz - smallestZ.getCumZ();
 
                 findBox(lenx, layerThickness, remainpy, lenz, lpz);
                 checkFound();
@@ -778,59 +773,59 @@ public class EB_AFIT implements PackingAlgorithm {
                 if (evened) continue;
 
                 itemsToPack.get(cBoxI).setCoordY(packedy);
-                itemsToPack.get(cBoxI).setCoordZ(smallestZ.cumZ);
+                itemsToPack.get(cBoxI).setCoordZ(smallestZ.getCumZ());
 
-                if (cboxx == smallestZ.cumX - smallestZ.pre.cumX) {
-                    itemsToPack.get(cBoxI).setCoordX(smallestZ.pre.cumX);
+                if (cboxx == smallestZ.getCumX() - smallestZ.getPre().getCumX()) {
+                    itemsToPack.get(cBoxI).setCoordX(smallestZ.getPre().getCumX());
 
-                    if (smallestZ.cumZ + cboxz == smallestZ.post.cumZ) {
-                        smallestZ.pre.cumX = smallestZ.post.cumX;
+                    if (smallestZ.getCumZ() + cboxz == smallestZ.getPost().getCumZ()) {
+                        smallestZ.getPre().setCumX(smallestZ.getPost().getCumX());
 
-                        if (smallestZ.post.post != null) {
-                            smallestZ.pre.post = smallestZ.post.post;
-                            smallestZ.post.post.pre = smallestZ.pre;
+                        if (smallestZ.getPost().getPost() != null) {
+                            smallestZ.getPre().setPost(smallestZ.getPost().getPost());
+                            smallestZ.getPost().getPost().setPre(smallestZ.getPre());
                         } else {
-                            smallestZ.pre.post = null;
+                            smallestZ.getPre().setPost(null);
                         }
                     } else {
-                        smallestZ.cumZ = smallestZ.cumZ + cboxz;
+                        smallestZ.setCumZ(smallestZ.getCumZ() + cboxz);
                     }
-                } else if (smallestZ.pre.cumX < px - smallestZ.cumX) {
-                    if (smallestZ.cumZ + cboxz == smallestZ.pre.cumZ) {
-                        smallestZ.cumX = smallestZ.cumX - cboxx;
-                        itemsToPack.get(cBoxI).setCoordX(smallestZ.cumX - cboxx);
+                } else if (smallestZ.getPre().getCumX() < px - smallestZ.getCumX()) {
+                    if (smallestZ.getCumZ() + cboxz == smallestZ.getPre().getCumZ()) {
+                        smallestZ.setCumX(smallestZ.getCumX() - cboxx);
+                        itemsToPack.get(cBoxI).setCoordX(smallestZ.getCumX() - cboxx);
                     } else {
-                        itemsToPack.get(cBoxI).setCoordX(smallestZ.pre.cumX);
-                        smallestZ.pre.post = new ScrapPad();
+                        itemsToPack.get(cBoxI).setCoordX(smallestZ.getPre().getCumX());
+                        smallestZ.getPre().setPost(new ScrapPad());
 
-                        smallestZ.pre.post.pre = smallestZ.pre;
-                        smallestZ.pre.post.post = smallestZ;
-                        smallestZ.pre = smallestZ.pre.post;
-                        smallestZ.pre.cumX = smallestZ.pre.pre.cumX + cboxx;
-                        smallestZ.pre.cumZ = smallestZ.cumZ + cboxz;
+                        smallestZ.getPre().getPost().setPre(smallestZ.getPre());
+                        smallestZ.getPre().getPost().setPost(smallestZ);
+                        smallestZ.setPre(smallestZ.getPre().getPost());
+                        smallestZ.getPre().setCumX(smallestZ.getPre().getPre().getCumX() + cboxx);
+                        smallestZ.getPre().setCumZ(smallestZ.getCumZ() + cboxz);
                     }
                 } else {
-                    if (smallestZ.cumZ + cboxz == smallestZ.pre.cumZ) {
-                        smallestZ.pre.cumX = smallestZ.pre.cumX + cboxx;
-                        itemsToPack.get(cBoxI).setCoordX(smallestZ.pre.cumX);
+                    if (smallestZ.getCumZ() + cboxz == smallestZ.getPre().getCumZ()) {
+                        smallestZ.getPre().setCumX(smallestZ.getPre().getCumX() + cboxx);
+                        itemsToPack.get(cBoxI).setCoordX(smallestZ.getPre().getCumX());
                     } else {
-                        itemsToPack.get(cBoxI).setCoordX(smallestZ.cumX - cboxx);
-                        smallestZ.post.pre = new ScrapPad();
+                        itemsToPack.get(cBoxI).setCoordX(smallestZ.getCumX() - cboxx);
+                        smallestZ.getPost().setPre(new ScrapPad());
 
-                        smallestZ.post.pre.post = smallestZ.post;
-                        smallestZ.post.pre.pre = smallestZ;
-                        smallestZ.post = smallestZ.post.pre;
-                        smallestZ.post.cumX = smallestZ.cumX;
-                        smallestZ.post.cumZ = smallestZ.cumZ + cboxz;
-                        smallestZ.cumX = smallestZ.cumX - cboxx;
+                        smallestZ.getPost().getPre().setPost(smallestZ.getPost());
+                        smallestZ.getPost().getPre().setPre(smallestZ);
+                        smallestZ.setPost(smallestZ.getPost().getPre());
+                        smallestZ.getPost().setCumX(smallestZ.getCumX());
+                        smallestZ.getPost().setCumZ(smallestZ.getCumZ() + cboxz);
+                        smallestZ.setCumX(smallestZ.getCumX() - cboxx);
                     }
                 }
             } else {
                 //*** SUBSITUATION-4B: SIDES ARE NOT EQUAL TO EACH OTHER ***
 
-                lenx = smallestZ.cumX - smallestZ.pre.cumX;
-                lenz = smallestZ.pre.cumZ - smallestZ.cumZ;
-                lpz = remainpz - smallestZ.cumZ;
+                lenx = smallestZ.getCumX() - smallestZ.getPre().getCumX();
+                lenz = smallestZ.getPre().getCumZ() - smallestZ.getCumZ();
+                lpz = remainpz - smallestZ.getCumZ();
                 findBox(lenx, layerThickness, remainpy, lenz, lpz);
                 checkFound();
 
@@ -838,31 +833,31 @@ public class EB_AFIT implements PackingAlgorithm {
                 if (evened) continue;
 
                 itemsToPack.get(cBoxI).setCoordY(packedy);
-                itemsToPack.get(cBoxI).setCoordZ(smallestZ.cumZ);
-                itemsToPack.get(cBoxI).setCoordX(smallestZ.pre.cumX);
+                itemsToPack.get(cBoxI).setCoordZ(smallestZ.getCumZ());
+                itemsToPack.get(cBoxI).setCoordX(smallestZ.getPre().getCumX());
 
-                if (cboxx == (smallestZ.cumX - smallestZ.pre.cumX)) {
-                    if ((smallestZ.cumZ + cboxz) == smallestZ.pre.cumZ) {
-                        smallestZ.pre.cumX = smallestZ.cumX;
-                        smallestZ.pre.post = smallestZ.post;
-                        smallestZ.post.pre = smallestZ.pre;
+                if (cboxx == (smallestZ.getCumX() - smallestZ.getPre().getCumX())) {
+                    if ((smallestZ.getCumZ() + cboxz) == smallestZ.getPre().getCumZ()) {
+                        smallestZ.getPre().setCumX(smallestZ.getCumX());
+                        smallestZ.getPre().setPost(smallestZ.getPost());
+                        smallestZ.getPost().setPre(smallestZ.getPre());
                     } else {
-                        smallestZ.cumZ = smallestZ.cumZ + cboxz;
+                        smallestZ.setCumZ(smallestZ.getCumZ() + cboxz);
                     }
                 } else {
-                    if ((smallestZ.cumZ + cboxz) == smallestZ.pre.cumZ) {
-                        smallestZ.pre.cumX = smallestZ.pre.cumX + cboxx;
-                    } else if (smallestZ.cumZ + cboxz == smallestZ.post.cumZ) {
-                        itemsToPack.get(cBoxI).setCoordX(smallestZ.cumX - cboxx);
-                        smallestZ.cumX = smallestZ.cumX - cboxx;
+                    if ((smallestZ.getCumZ() + cboxz) == smallestZ.getPre().getCumZ()) {
+                        smallestZ.getPre().setCumX(smallestZ.getPre().getCumX() + cboxx);
+                    } else if (smallestZ.getCumZ() + cboxz == smallestZ.getPost().getCumZ()) {
+                        itemsToPack.get(cBoxI).setCoordX(smallestZ.getCumX() - cboxx);
+                        smallestZ.setCumX(smallestZ.getCumX() - cboxx);
                     } else {
-                        smallestZ.pre.post = new ScrapPad();
+                        smallestZ.getPre().setPost(new ScrapPad());
 
-                        smallestZ.pre.post.pre = smallestZ.pre;
-                        smallestZ.pre.post.post = smallestZ;
-                        smallestZ.pre = smallestZ.pre.post;
-                        smallestZ.pre.cumX = smallestZ.pre.pre.cumX + cboxx;
-                        smallestZ.pre.cumZ = smallestZ.cumZ + cboxz;
+                        smallestZ.getPre().getPost().setPre(smallestZ.getPre());
+                        smallestZ.getPre().getPost().setPost(smallestZ);
+                        smallestZ.setPre(smallestZ.getPre().getPost());
+                        smallestZ.getPre().setCumX(smallestZ.getPre().getPre().getCumX() + cboxx);
+                        smallestZ.getPre().setCumZ(smallestZ.getCumZ() + cboxz);
                     }
                 }
             }
@@ -914,7 +909,7 @@ public class EB_AFIT implements PackingAlgorithm {
 
         layers.clear();
         layers.add(new Layer(0, -1));
-        listCanditLayers();
+        listCandidateLayers();
         layers = layers.stream().sorted(Comparator.comparingDouble(l -> l.layerEval)).collect(Collectors.toList());
         packedVolume = 0;
         packedy = 0;
@@ -1019,7 +1014,7 @@ public class EB_AFIT implements PackingAlgorithm {
         /// <value>
         /// The x coordinate of the gap's right corner.
         /// </value>
-        public double cumX;
+        private double cumX;
 
         /// <summary>
         /// Gets or sets the z coordinate of the gap's right corner.
@@ -1027,7 +1022,7 @@ public class EB_AFIT implements PackingAlgorithm {
         /// <value>
         /// The z coordinate of the gap's right corner.
         /// </value>
-        public double cumZ;
+        private double cumZ;
 
         /// <summary>
         /// Gets or sets the following entry.
@@ -1035,7 +1030,7 @@ public class EB_AFIT implements PackingAlgorithm {
         /// <value>
         /// The following entry.
         /// </value>
-        public ScrapPad post;
+        private ScrapPad post;
 
         /// <summary>
         /// Gets or sets the previous entry.
@@ -1043,7 +1038,7 @@ public class EB_AFIT implements PackingAlgorithm {
         /// <value>
         /// The previous entry.
         /// </value>
-        public ScrapPad pre;
+        private ScrapPad pre;
 
     }
 }
