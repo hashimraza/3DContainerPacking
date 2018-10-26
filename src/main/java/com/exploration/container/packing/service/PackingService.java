@@ -36,7 +36,7 @@ public class PackingService {
         containers.forEach(container ->
         {
             ContainerPackingResult containerPackingResult = new ContainerPackingResult();
-            containerPackingResult.containerId = container.id;
+            containerPackingResult.setContainerId(container.getId());
 
             algorithmTypeIDs.parallelStream().forEach(algorithmTypeID ->
             {
@@ -51,29 +51,31 @@ public class PackingService {
                 // so the parallel updates don't interfere with each other.
                 ArrayList<Item> items = new ArrayList<>();
 
-                itemsToPack.forEach(item -> items.add(new Item(item.id, item.dim1, item.dim2, item.dim3, item.quantity)));
+                itemsToPack.forEach(item -> items.add(new Item(item.getId(), item.getDim1(), item.getDim2(), item.getDim3(),
+                        item.getQuantity())));
 
                 Stopwatch stopwatch = Stopwatch.createStarted();
                 assert algorithm != null;
                 AlgorithmPackingResult algorithmResult = algorithm.run(container, items);
                 stopwatch.stop();
 
-                algorithmResult.packTimeInMilliseconds = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+                algorithmResult.setPackTimeInMilliseconds(stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
-                double containerVolume = container.length * container.width * container.height;
-                double itemVolumePacked = algorithmResult.packedItems.stream().mapToDouble(i -> i.volume).sum();
-                double itemVolumeUnpacked = algorithmResult.unpackedItems.stream().mapToDouble(i -> i.volume).sum();
+                double containerVolume = container.getLength() * container.getWidth() * container.getHeight();
+                double itemVolumePacked = algorithmResult.getPackedItems().stream().mapToDouble(i -> i.getVolume()).sum();
+                double itemVolumeUnpacked = algorithmResult.getUnpackedItems().stream().mapToDouble(i -> i.getVolume()).sum();
 
-                algorithmResult.percentContainerVolumePacked = round(itemVolumePacked / containerVolume * 100);
-                algorithmResult.percentItemVolumePacked = round(itemVolumePacked / (itemVolumePacked + itemVolumeUnpacked) * 100);
+                algorithmResult.setPercentContainerVolumePacked(round(itemVolumePacked / containerVolume * 100));
+                algorithmResult.setPercentItemVolumePacked(
+                        round(itemVolumePacked / (itemVolumePacked + itemVolumeUnpacked) * 100));
 
                 synchronized (sync) {
-                    containerPackingResult.algorithmPackingResults.add(algorithmResult);
+                    containerPackingResult.getAlgorithmPackingResults().add(algorithmResult);
                 }
             });
 
-            containerPackingResult.algorithmPackingResults = containerPackingResult.algorithmPackingResults
-                    .stream().sorted(Comparator.comparing(r -> r.algorithmName)).collect(Collectors.toList());
+            containerPackingResult.setAlgorithmPackingResults(containerPackingResult.getAlgorithmPackingResults()
+                    .stream().sorted(Comparator.comparing(r -> r.getAlgorithmName())).collect(Collectors.toList()));
 
             synchronized (sync) {
                 result.add(containerPackingResult);

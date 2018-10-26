@@ -1,21 +1,24 @@
 package com.exploration.container.packing.entities;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class Container {
-    public int id;
-    public long length;
-    public long width;
-    public long height;
-    public long volume;
+    private int id;
+    private long length;
+    private long width;
+    private long height;
+    private long volume;
+
     public Container(int id, long length, long width, long height) {
-        this.id = id;
-        this.length = length;
-        this.width = width;
-        this.height = height;
-        this.volume = length * width * height;
+        this.setId(id);
+        this.setLength(length);
+        this.setWidth(width);
+        this.setHeight(height);
+        this.setVolume(length * width * height);
     }
 }

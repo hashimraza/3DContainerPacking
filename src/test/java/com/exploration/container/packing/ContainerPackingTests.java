@@ -22,7 +22,7 @@ public class ContainerPackingTests {
     @Test
     public void EB_AFIT_Passes_700_Standard_Reference_Tests() {
         // ORLibrary.txt is an Embedded Resource in this project.
-        String resourceName = "D:/Data/IntelliJ/Exploration/3d-container-packing/src/test/java/com/zooplus/logistics/exploration/packing/datafiles/ORLibrary.txt";
+        String resourceName = "D:\\Data\\IntelliJ\\Exploration\\3d-container-packing\\src\\test\\java\\com\\exploration\\container\\packing\\datafiles\\ORLibrary.txt";
         // Counter to control how many tests are run in dev.
         File file = new File(resourceName);
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
@@ -56,25 +56,25 @@ public class ContainerPackingTests {
 
                 List<ContainerPackingResult> result = new PackingService().pack(containers, itemsToPack,
                         Collections.singletonList(AlgorithmType.EB_AFIT.getType()));
-                AlgorithmPackingResult algorithmPackingResult = result.get(0).algorithmPackingResults.get(0);
-                System.out.println("pack Time: " + algorithmPackingResult.packTimeInMilliseconds);
+                AlgorithmPackingResult algorithmPackingResult = result.get(0).getAlgorithmPackingResults().get(0);
+                System.out.println("pack Time: " + algorithmPackingResult.getPackTimeInMilliseconds());
 
                 // Assert that the number of items we tried to pack equals the number stated in the published reference.
-                Assertions.assertThat(algorithmPackingResult.packedItems.size() + algorithmPackingResult.unpackedItems.size())
+                Assertions.assertThat(algorithmPackingResult.getPackedItems().size() + algorithmPackingResult.getUnpackedItems().size())
                         .isEqualTo(Integer.valueOf(testResults[1]));
 
                 // Assert that the number of items successfully packed equals the number stated in the published reference.
-                Assertions.assertThat(algorithmPackingResult.packedItems)
+                Assertions.assertThat(algorithmPackingResult.getPackedItems())
                         .hasSize(Integer.valueOf(testResults[2]));
 
                 // Assert that the packed container volume percentage is equal to the published reference result.
                 // Make an exception for a couple of tests where this algorithm yields 87.20% and the published result
                 // was 87.21% (acceptable rounding error).
-                Assertions.assertThat(algorithmPackingResult.percentContainerVolumePacked)
+                Assertions.assertThat(algorithmPackingResult.getPercentContainerVolumePacked())
                         .isGreaterThan(Double.valueOf(testResults[3]) - 3);
 
                 // Assert that the packed item volume percentage is equal to the published reference result.
-                Assertions.assertThat(algorithmPackingResult.percentItemVolumePacked)
+                Assertions.assertThat(algorithmPackingResult.getPercentItemVolumePacked())
                         .isGreaterThan(Double.valueOf(testResults[4]) - 3);
 
                 counter++;
