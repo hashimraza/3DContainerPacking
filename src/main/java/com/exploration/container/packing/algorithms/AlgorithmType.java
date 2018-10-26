@@ -1,4 +1,4 @@
-package com.zooplus.logistics.exploration.packing.algorithms;
+package com.exploration.container.packing.algorithms;
 
 import lombok.Getter;
 

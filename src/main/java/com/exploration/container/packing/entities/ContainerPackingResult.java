@@ -1,4 +1,4 @@
-package com.zooplus.logistics.exploration.packing.entities;
+package com.exploration.container.packing.entities;
 
 import java.util.ArrayList;
 import java.util.List;

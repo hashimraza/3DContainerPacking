@@ -1,8 +1,8 @@
-package com.zooplus.logistics.exploration.packing.web.controllers;
+package com.exploration.container.packing.web.controllers;
 
-import com.zooplus.logistics.exploration.packing.entities.ContainerPackingResult;
-import com.zooplus.logistics.exploration.packing.service.PackingService;
-import com.zooplus.logistics.exploration.packing.web.Models.ContainerPackingRequest;
+import com.exploration.container.packing.entities.ContainerPackingResult;
+import com.exploration.container.packing.service.PackingService;
+import com.exploration.container.packing.web.Models.ContainerPackingRequest;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

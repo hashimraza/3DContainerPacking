@@ -1,4 +1,4 @@
-package com.zooplus.logistics.exploration.packing;
+package com.exploration.container.packing;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;

@@ -1,11 +1,11 @@
-package com.zooplus.logistics.exploration.packing;
+package com.exploration.container.packing;
 
-import com.zooplus.logistics.exploration.packing.algorithms.AlgorithmType;
-import com.zooplus.logistics.exploration.packing.entities.AlgorithmPackingResult;
-import com.zooplus.logistics.exploration.packing.entities.Container;
-import com.zooplus.logistics.exploration.packing.entities.ContainerPackingResult;
-import com.zooplus.logistics.exploration.packing.entities.Item;
-import com.zooplus.logistics.exploration.packing.service.PackingService;
+import com.exploration.container.packing.algorithms.AlgorithmType;
+import com.exploration.container.packing.entities.Container;
+import com.exploration.container.packing.entities.ContainerPackingResult;
+import com.exploration.container.packing.entities.Item;
+import com.exploration.container.packing.entities.AlgorithmPackingResult;
+import com.exploration.container.packing.service.PackingService;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
