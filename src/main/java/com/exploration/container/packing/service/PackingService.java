@@ -8,6 +8,7 @@ import com.exploration.container.packing.entities.Container;
 import com.exploration.container.packing.entities.ContainerPackingResult;
 import com.exploration.container.packing.entities.Item;
 import com.google.common.base.Stopwatch;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -17,10 +18,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.Math.round;
 
-
-/// <summary>
-/// The container packing service.
-/// </summary>
+@Service
 public class PackingService {
     /// <summary>
     /// Attempts to pack the specified containers with the specified items import the specified algorithms.
@@ -42,7 +40,7 @@ public class PackingService {
             {
                 PackingAlgorithm algorithm = null;
                 try {
-                    algorithm = getPackingAlgorithmFromTypeID(algorithmTypeID);
+                    algorithm = getPackingAlgorithmFromTypeId(algorithmTypeID);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -51,8 +49,14 @@ public class PackingService {
                 // so the parallel updates don't interfere with each other.
                 ArrayList<Item> items = new ArrayList<>();
 
-                itemsToPack.forEach(item -> items.add(new Item(item.getId(), item.getDim1(), item.getDim2(), item.getDim3(),
-                        item.getQuantity())));
+                itemsToPack.forEach(item -> items.add(Item.builder()
+                        .id(item.getId())
+                        .dim1(item.getDim1())
+                        .dim2(item.getDim2())
+                        .dim3(item.getDim3())
+                        .quantity(item.getQuantity())
+                        .weight(item.getWeight())
+                        .build()));
 
                 Stopwatch stopwatch = Stopwatch.createStarted();
                 assert algorithm != null;
@@ -62,12 +66,18 @@ public class PackingService {
                 algorithmResult.setPackTimeInMilliseconds(stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
                 double containerVolume = container.getLength() * container.getWidth() * container.getHeight();
-                double itemVolumePacked = algorithmResult.getPackedItems().stream().mapToDouble(i -> i.getVolume()).sum();
-                double itemVolumeUnpacked = algorithmResult.getUnpackedItems().stream().mapToDouble(i -> i.getVolume()).sum();
+                long containerWeight = container.getWeight();
+                double itemVolumePacked = algorithmResult.getPackedItems().stream().mapToDouble(Item::getVolume).sum();
+                double itemVolumeUnpacked = algorithmResult.getUnpackedItems().stream().mapToDouble(Item::getVolume).sum();
+                double itemWeightPacked = algorithmResult.getPackedItems().stream().mapToDouble(Item::getWeight).sum();
+                double itemWeightUnpacked = algorithmResult.getUnpackedItems().stream().mapToDouble(Item::getWeight).sum();
 
                 algorithmResult.setPercentContainerVolumePacked(round(itemVolumePacked / containerVolume * 100));
                 algorithmResult.setPercentItemVolumePacked(
                         round(itemVolumePacked / (itemVolumePacked + itemVolumeUnpacked) * 100));
+                algorithmResult.setPercentWeightPacked(round((itemWeightPacked + containerWeight)
+                        / (itemWeightPacked + itemWeightUnpacked + containerWeight) * 100));
+
 
                 synchronized (sync) {
                     containerPackingResult.getAlgorithmPackingResults().add(algorithmResult);
@@ -75,7 +85,9 @@ public class PackingService {
             });
 
             containerPackingResult.setAlgorithmPackingResults(containerPackingResult.getAlgorithmPackingResults()
-                    .stream().sorted(Comparator.comparing(r -> r.getAlgorithmName())).collect(Collectors.toList()));
+                    .stream()
+                    .sorted(Comparator.comparing(AlgorithmPackingResult::getAlgorithmName))
+                    .collect(Collectors.toList()));
 
             synchronized (sync) {
                 result.add(containerPackingResult);
@@ -85,8 +97,8 @@ public class PackingService {
         return result;
     }
 
-    private PackingAlgorithm getPackingAlgorithmFromTypeID(int algorithmTypeID) throws Exception {
-        switch (AlgorithmType.findByType(algorithmTypeID)) {
+    private PackingAlgorithm getPackingAlgorithmFromTypeId(int algorithmTypeId) throws Exception {
+        switch (AlgorithmType.findByType(algorithmTypeId)) {
             case EB_AFIT:
                 return new EB_AFIT();
             default:

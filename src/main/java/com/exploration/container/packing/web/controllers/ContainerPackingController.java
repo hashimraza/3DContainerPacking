@@ -3,6 +3,7 @@ package com.exploration.container.packing.web.controllers;
 import com.exploration.container.packing.entities.ContainerPackingResult;
 import com.exploration.container.packing.service.PackingService;
 import com.exploration.container.packing.web.models.ContainerPackingRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,14 +13,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/containerpacking")
+@RequiredArgsConstructor
 public class ContainerPackingController {
-    /// <summary>
-    /// Posts the specified packing request.
-    /// </summary>
-    /// <param name="request">The packing request.</param>
-    /// <returns>A container packing result with lists of packed and unpacked items.</returns>
+    private final PackingService packingService;
+
     @PostMapping
     public List<ContainerPackingResult> Post(@RequestBody ContainerPackingRequest request) {
-        return new PackingService().pack(request.getContainers(), request.getItemsToPack(), request.getAlgorithmTypeIDs());
+        return packingService.pack(request.getContainers(), request.getItemsToPack(), request.getAlgorithmTypeIDs());
     }
 }

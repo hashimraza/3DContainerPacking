@@ -85,12 +85,60 @@ var ViewModel = function () {
 
     self.GenerateItemsToPack = function () {
         self.ItemsToPack([]);
-        self.ItemsToPack.push(ko.mapping.fromJS({id: 1000, name: 'Item1', length: 5, width: 4, height: 2, quantity: 1}));
-        self.ItemsToPack.push(ko.mapping.fromJS({id: 1001, name: 'Item2', length: 2, width: 1, height: 1, quantity: 3}));
-        self.ItemsToPack.push(ko.mapping.fromJS({id: 1002, name: 'Item3', length: 9, width: 7, height: 3, quantity: 4}));
-        self.ItemsToPack.push(ko.mapping.fromJS({id: 1003, name: 'Item4', length: 13, width: 6, height: 3, quantity: 8}));
-        self.ItemsToPack.push(ko.mapping.fromJS({id: 1004, name: 'Item5', length: 17, width: 8, height: 6, quantity: 1}));
-        self.ItemsToPack.push(ko.mapping.fromJS({id: 1005, name: 'Item6', length: 3, width: 3, height: 2, quantity: 2}));
+        self.ItemsToPack.push(ko.mapping.fromJS({
+            id: 1000,
+            name: 'Item1',
+            length: 5,
+            width: 4,
+            height: 2,
+            quantity: 1,
+            weight: 5
+        }));
+        self.ItemsToPack.push(ko.mapping.fromJS({
+            id: 1001,
+            name: 'Item2',
+            length: 2,
+            width: 1,
+            height: 1,
+            quantity: 3,
+            weight: 5
+        }));
+        self.ItemsToPack.push(ko.mapping.fromJS({
+            id: 1002,
+            name: 'Item3',
+            length: 9,
+            width: 7,
+            height: 3,
+            quantity: 4,
+            weight: 5
+        }));
+        self.ItemsToPack.push(ko.mapping.fromJS({
+            id: 1003,
+            name: 'Item4',
+            length: 13,
+            width: 6,
+            height: 3,
+            quantity: 8,
+            weight: 5
+        }));
+        self.ItemsToPack.push(ko.mapping.fromJS({
+            id: 1004,
+            name: 'Item5',
+            length: 17,
+            width: 8,
+            height: 6,
+            quantity: 1,
+            weight: 5
+        }));
+        self.ItemsToPack.push(ko.mapping.fromJS({
+            id: 1005,
+            name: 'Item6',
+            length: 3,
+            width: 3,
+            height: 2,
+            quantity: 2,
+            weight: 5
+        }));
     };
 
     self.GenerateContainers = function () {
@@ -101,6 +149,8 @@ var ViewModel = function () {
             length: 15,
             width: 13,
             height: 9,
+            weight: 5,
+            maxAllowedWeight: 100,
             algorithmPackingResults: []
         }));
         self.containers.push(ko.mapping.fromJS({
@@ -109,6 +159,8 @@ var ViewModel = function () {
             length: 23,
             width: 9,
             height: 4,
+            weight: 5,
+            maxAllowedWeight: 100,
             algorithmPackingResults: []
         }));
         self.containers.push(ko.mapping.fromJS({
@@ -117,6 +169,8 @@ var ViewModel = function () {
             length: 16,
             width: 16,
             height: 6,
+            weight: 5,
+            maxAllowedWeight: 100,
             algorithmPackingResults: []
         }));
         self.containers.push(ko.mapping.fromJS({
@@ -125,6 +179,8 @@ var ViewModel = function () {
             length: 10,
             width: 8,
             height: 5,
+            weight: 5,
+            maxAllowedWeight: 100,
             algorithmPackingResults: []
         }));
         self.containers.push(ko.mapping.fromJS({
@@ -133,6 +189,8 @@ var ViewModel = function () {
             length: 40,
             width: 28,
             height: 20,
+            weight: 5,
+            maxAllowedWeight: 100,
             algorithmPackingResults: []
         }));
         self.containers.push(ko.mapping.fromJS({
@@ -141,6 +199,8 @@ var ViewModel = function () {
             length: 29,
             width: 19,
             height: 4,
+            weight: 5,
+            maxAllowedWeight: 100,
             algorithmPackingResults: []
         }));
         self.containers.push(ko.mapping.fromJS({
@@ -149,6 +209,8 @@ var ViewModel = function () {
             length: 18,
             width: 13,
             height: 1,
+            weight: 5,
+            maxAllowedWeight: 100,
             algorithmPackingResults: []
         }));
         self.containers.push(ko.mapping.fromJS({
@@ -157,6 +219,8 @@ var ViewModel = function () {
             length: 6,
             width: 6,
             height: 6,
+            weight: 5,
+            maxAllowedWeight: 100,
             algorithmPackingResults: []
         }));
         self.containers.push(ko.mapping.fromJS({
@@ -165,6 +229,8 @@ var ViewModel = function () {
             length: 8,
             width: 5,
             height: 5,
+            weight: 5,
+            maxAllowedWeight: 100,
             algorithmPackingResults: []
         }));
         self.containers.push(ko.mapping.fromJS({
@@ -173,6 +239,8 @@ var ViewModel = function () {
             length: 18,
             width: 13,
             height: 8,
+            weight: 5,
+            maxAllowedWeight: 100,
             algorithmPackingResults: []
         }));
         self.containers.push(ko.mapping.fromJS({
@@ -181,6 +249,8 @@ var ViewModel = function () {
             length: 17,
             width: 16,
             height: 15,
+            weight: 5,
+            maxAllowedWeight: 100,
             algorithmPackingResults: []
         }));
         self.containers.push(ko.mapping.fromJS({
@@ -189,6 +259,8 @@ var ViewModel = function () {
             length: 32,
             width: 10,
             height: 9,
+            weight: 5,
+            maxAllowedWeight: 100,
             algorithmPackingResults: []
         }));
         self.containers.push(ko.mapping.fromJS({
@@ -197,6 +269,8 @@ var ViewModel = function () {
             length: 60,
             width: 60,
             height: 60,
+            weight: 5,
+            maxAllowedWeight: 100,
             algorithmPackingResults: []
         }));
     };
@@ -219,6 +293,7 @@ var ViewModel = function () {
         self.NewItemToPack.width('');
         self.NewItemToPack.height('');
         self.NewItemToPack.quantity('');
+        self.NewItemToPack.weight('');
     };
 
     self.RemoveItemToPack = function (item) {
@@ -232,6 +307,8 @@ var ViewModel = function () {
         self.NewContainer.length('');
         self.NewContainer.width('');
         self.NewContainer.height('');
+        self.NewContainer.weight('');
+        self.NewContainer.maxAllowedWeight('');
     };
 
     self.RemoveContainer = function (item) {
@@ -253,7 +330,8 @@ var ViewModel = function () {
                 dim1: item.length(),
                 dim2: item.width(),
                 dim3: item.height(),
-                quantity: item.quantity()
+                quantity: item.quantity(),
+                weight: item.weight()
             };
 
             itemsToPack.push(itemToPack);
@@ -267,7 +345,9 @@ var ViewModel = function () {
                 id: container.id(),
                 length: container.length(),
                 width: container.width(),
-                height: container.height()
+                height: container.height(),
+                weight: container.weight(),
+                maxAllowedWeight: container.maxAllowedWeight()
             };
 
             containers.push(containerToUse);
@@ -276,8 +356,8 @@ var ViewModel = function () {
         // Build container packing request.
         var request = {
             containers: containers,
-            ItemsToPack: itemsToPack,
-            AlgorithmTypeIDs: algorithmsToUse
+            itemsToPack: itemsToPack,
+            algorithmTypeIDs: algorithmsToUse
         };
 
         PackContainers(JSON.stringify(request))
@@ -369,6 +449,7 @@ var ItemToPack = function () {
     this.width = '';
     this.height = '';
     this.quantity = '';
+    this.weight = '';
 };
 
 var Container = function () {
@@ -377,6 +458,8 @@ var Container = function () {
     this.length = '';
     this.width = '';
     this.height = '';
+    this.weight = '';
+    this.maxAllowedWeight = '';
     this.algorithmPackingResults = [];
 };
 

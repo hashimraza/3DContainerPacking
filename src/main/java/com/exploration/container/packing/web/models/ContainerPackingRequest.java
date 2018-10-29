@@ -10,7 +10,7 @@ import java.util.List;
 public class ContainerPackingRequest {
     private List<Container> containers;
 
-    private List<Item> ItemsToPack;
+    private List<Item> itemsToPack;
 
-    private List<Integer> AlgorithmTypeIDs;
+    private List<Integer> algorithmTypeIDs;
 }

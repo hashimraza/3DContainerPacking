@@ -16,6 +16,7 @@ public class AlgorithmPackingResult {
 
     private double percentContainerVolumePacked;
     private double percentItemVolumePacked;
+    private double percentWeightPacked;
 
     private ArrayList<Item> unpackedItems;
 

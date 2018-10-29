@@ -123,6 +123,7 @@
                             <th class="data-column text-center">W</th>
                             <th class="data-column text-center">H</th>
                             <th class="data-column text-center">Qty</th>
+                            <th class="data-column text-center">Weight</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -143,6 +144,8 @@
                                                                        data-bind="value: height"/></td>
                             <td class="data-column text-center"><input type="text" class="form-control input-sm text-center"
                                                                        data-bind="value: quantity"/></td>
+                            <td class="data-column text-center"><input type="text" class="form-control input-sm text-center"
+                                                                       data-bind="value: weight"/></td>
                             <td></td>
                         </tr>
                         </tbody>
@@ -166,6 +169,8 @@
                                                                        data-bind="value: NewItemToPack.height"/></td>
                             <td class="data-column text-center"><input type="text" class="form-control input-sm text-center"
                                                                        data-bind="value: NewItemToPack.quantity"/></td>
+                            <td class="data-column text-center"><input type="text" class="form-control input-sm text-center"
+                                                                       data-bind="value: NewItemToPack.weight"/></td>
                             <td></td>
                         </tr>
                     </table>
@@ -193,11 +198,16 @@
                             <th class="data-column text-center">L</th>
                             <th class="data-column text-center">W</th>
                             <th class="data-column text-center">H</th>
+                            <th class="data-column text-center">Weight</th>
+                            <th class="data-column text-center">Max Weight</th>
                             <th class="button-column gray-cell"></th>
                             <th class="algorithm-name-column">Algorithm<br/>Name</th>
                             <th class="data-column text-center">Pack Time<br/>(ms)</th>
                             <th class="data-column text-center">
                                 <div data-toggle="tooltip" title="% of container volume packed with items">% Cont.<br/>Used</div>
+                            </th>
+                            <th class="data-column text-center">
+                                <div data-toggle="tooltip" title="% of weight packed with items">% Weight<br/>Packed</div>
                             </th>
                             <th class="data-column text-center"># Items<br/>Packed</th>
                             <th class="data-column text-center"># Items<br/>Unpacked</th>
@@ -219,6 +229,10 @@
                                                                        data-bind="value: width"/></td>
                             <td class="data-column text-center"><input type="text" class="form-control input-sm text-center"
                                                                        data-bind="value: height"/></td>
+                            <td class="data-column text-center"><input type="text" class="form-control input-sm text-center"
+                                                                       data-bind="value: weight"/></td>
+                            <td class="data-column text-center"><input type="text" class="form-control input-sm text-center"
+                                                                       data-bind="value: maxAllowedWeight"/></td>
                             <td class="button-column gray-cell"></td>
                             <td class="algorithm-name-column">
                                 <table>
@@ -243,6 +257,16 @@
                                     <tbody data-bind="foreach: algorithmPackingResults">
                                     <tr>
                                         <td><p class="form-control-static" data-bind="text: percentContainerVolumePacked"></p>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                            <td class="data-column text-center">
+                                <table style="margin: auto;">
+                                    <tbody data-bind="foreach: algorithmPackingResults">
+                                    <tr>
+                                        <td><p class="form-control-static" data-bind="text: percentWeightPacked"></p>
                                         </td>
                                     </tr>
                                     </tbody>
@@ -302,6 +326,10 @@
                                                                        data-bind="value: NewContainer.width"/></td>
                             <td class="data-column text-center"><input type="text" class="form-control input-sm text-center"
                                                                        data-bind="value: NewContainer.height"/></td>
+                            <td class="data-column text-center"><input type="text" class="form-control input-sm text-center"
+                                                                       data-bind="value: NewContainer.weight"/></td>
+                            <td class="data-column text-center"><input type="text" class="form-control input-sm text-center"
+                                                                       data-bind="value: NewContainer.maxAllowedWeight"/></td>
                             <td></td>
                         </tr>
                     </table>

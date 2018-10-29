@@ -1,10 +1,14 @@
 package com.exploration.container.packing.entities;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Item {
     private int id;
     private boolean isPacked;
@@ -19,13 +23,14 @@ public class Item {
     private double packDimY;
     private double packDimZ;
     private double volume;
+    private long weight;
 
-    public Item(int id, double dim1, double dim2, double dim3, int quantity) {
-        this.setId(id);
-        this.setDim1(dim1);
-        this.setDim2(dim2);
-        this.setDim3(dim3);
-        this.setVolume(dim1 * dim2 * dim3);
-        this.setQuantity(quantity);
+    public double getVolume() {
+        if (volume == 0) {
+            this.setVolume(dim1 * dim2 * dim3);
+        }
+
+        return volume;
     }
+
 }

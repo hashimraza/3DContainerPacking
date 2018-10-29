@@ -1,10 +1,10 @@
 package com.exploration.container.packing;
 
 import com.exploration.container.packing.algorithms.AlgorithmType;
+import com.exploration.container.packing.entities.AlgorithmPackingResult;
 import com.exploration.container.packing.entities.Container;
 import com.exploration.container.packing.entities.ContainerPackingResult;
 import com.exploration.container.packing.entities.Item;
-import com.exploration.container.packing.entities.AlgorithmPackingResult;
 import com.exploration.container.packing.service.PackingService;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
@@ -19,6 +19,7 @@ import java.util.List;
 
 
 public class ContainerPackingTests {
+
     @Test
     public void EB_AFIT_Passes_700_Standard_Reference_Tests() {
         // ORLibrary.txt is an Embedded Resource in this project.
@@ -45,14 +46,23 @@ public class ContainerPackingTests {
                 for (int i = 0; i < itemTypeCount; i++) {
                     String[] itemArray = br.readLine().split(" ");
 
-                    Item item = new Item(0, Long.valueOf(itemArray[1]), Long.valueOf(itemArray[3]),
-                            Long.valueOf(itemArray[5]), Integer.valueOf(itemArray[7]));
-                    itemsToPack.add(item);
+                    itemsToPack.add(Item.builder()
+                            .dim1(Long.valueOf(itemArray[1]))
+                            .dim2(Long.valueOf(itemArray[3]))
+                            .dim3(Long.valueOf(itemArray[5]))
+                            .quantity(Integer.valueOf(itemArray[7]))
+                            .weight(itemArray.length > 8 ? Long.valueOf(itemArray[8]) : 0)
+                            .build());
                 }
 
                 List<Container> containers = new ArrayList<>();
-                containers.add(new Container(0, Long.valueOf(containerDims[0]), Long.valueOf(containerDims[1]),
-                        Long.valueOf(containerDims[2])));
+                containers.add(Container.builder()
+                        .length(Long.valueOf(containerDims[0]))
+                        .width(Long.valueOf(containerDims[1]))
+                        .height(Long.valueOf(containerDims[2]))
+                        .weight(containerDims.length > 4 ? Long.valueOf(containerDims[3]) : 0)
+                        .maxAllowedWeight(containerDims.length > 4 ? Long.valueOf(containerDims[4]) : 0)
+                        .build());
 
                 List<ContainerPackingResult> result = new PackingService().pack(containers, itemsToPack,
                         Collections.singletonList(AlgorithmType.EB_AFIT.getType()));
@@ -60,7 +70,8 @@ public class ContainerPackingTests {
                 System.out.println("pack Time: " + algorithmPackingResult.getPackTimeInMilliseconds());
 
                 // Assert that the number of items we tried to pack equals the number stated in the published reference.
-                Assertions.assertThat(algorithmPackingResult.getPackedItems().size() + algorithmPackingResult.getUnpackedItems().size())
+                Assertions.assertThat(
+                        algorithmPackingResult.getPackedItems().size() + algorithmPackingResult.getUnpackedItems().size())
                         .isEqualTo(Integer.valueOf(testResults[1]));
 
                 // Assert that the number of items successfully packed equals the number stated in the published reference.
