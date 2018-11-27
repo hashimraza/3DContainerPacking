@@ -20,13 +20,14 @@ import static java.lang.Math.round;
 
 @Service
 public class PackingService {
-    /// <summary>
-    /// Attempts to pack the specified containers with the specified items import the specified algorithms.
-    /// </summary>
-    /// <param name="containers">The list of containers to pack.</param>
-    /// <param name="itemsToPack">The items to pack.</param>
-    /// <param name="algorithmTypeIDs">The list of algorithm type IDs to use for packing.</param>
-    /// <returns>A container packing result with lists of the packed and unpacked items.</returns>
+    /**
+     * Attempts to pack the specified containers with the specified items import the specified algorithms.
+     *
+     * <param name="containers">The list of containers to pack.</param>
+     * <param name="itemsToPack">The items to pack.</param>
+     * <param name="algorithmTypeIDs">The list of algorithm type IDs to use for packing.</param>
+     * <returns>A container packing result with lists of the packed and unpacked items.</returns>
+     */
     public List<ContainerPackingResult> pack(List<Container> containers, List<Item> itemsToPack, List<Integer> algorithmTypeIDs) {
         Object sync = new Object();
         List<ContainerPackingResult> result = new ArrayList<>();

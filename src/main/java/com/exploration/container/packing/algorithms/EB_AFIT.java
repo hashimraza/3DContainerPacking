@@ -24,14 +24,12 @@ public class EB_AFIT implements PackingAlgorithm {
 
     private List<Item> itemsToPack;
     private ArrayList<Item> itemsPackedInOrder;
-    private ScrapPad scrapFirst;
     private ScrapPad smallestZ;
     private boolean evened;
     private boolean hundredPercentPacked = false;
     private boolean layerDone;
     private boolean packing;
     private boolean packingBest = false;
-    private boolean quit = false;
     private int bBoxI;
     private int bestIteration;
     private int bestVariant;
@@ -126,13 +124,8 @@ public class EB_AFIT implements PackingAlgorithm {
         maxAllowedWeight = container.getMaxAllowedWeight() - container.getWeight();
         totalItemVolume = itemsToPack.stream().mapToDouble(Item::getVolume).sum();
 
-        scrapFirst = new ScrapPad();
-
-        scrapFirst.setPre(null);
-        scrapFirst.setPost(null);
         packingBest = false;
         hundredPercentPacked = false;
-        quit = false;
     }
 
     /**
@@ -144,14 +137,14 @@ public class EB_AFIT implements PackingAlgorithm {
         double bestVolume = 0.0D;
         List<Layer> layers;
 
-        for (int containerOrientationVariant = 1; (containerOrientationVariant <= 6) && !quit; containerOrientationVariant++) {
+        for (int containerOrientationVariant = 1; (containerOrientationVariant <= 6); containerOrientationVariant++) {
             ContainerVariant containerVariant = getContainerVariant(containerOrientationVariant, container);
             layers = new ArrayList<>();
             layers.add(new Layer(0, -1));
             layers.addAll(getCandidateLayers(containerVariant));
             layers = layers.stream().sorted(Comparator.comparingDouble(Layer::getLayerEval)).collect(toList());
 
-            for (layersIndex = 1; (layersIndex < layers.size()) && !quit; layersIndex++) {
+            for (layersIndex = 1; (layersIndex < layers.size()); layersIndex++) {
                 packedVolume = 0.0D;
                 packedWeight = 0L;
                 packedY = 0;
@@ -170,7 +163,7 @@ public class EB_AFIT implements PackingAlgorithm {
                     packedY = packedY + layerThickness;
                     remainpy = containerVariant.getY() - packedY;
 
-                    if (layerInLayer != 0 && !quit) {
+                    if (layerInLayer != 0) {
                         prepackedy = packedY;
                         preremainpy = remainpy;
                         remainpy = layerThickness - prelayer;
@@ -187,9 +180,9 @@ public class EB_AFIT implements PackingAlgorithm {
                     }
 
                     findLayer(containerVariant, remainpy);
-                } while (packing && !quit);
+                } while (packing);
 
-                if ((packedVolume > bestVolume) && !quit) {
+                if ((packedVolume > bestVolume)) {
                     bestVolume = packedVolume;
                     bestVariant = containerOrientationVariant;
                     bestIteration = iterateLayer;
@@ -449,8 +442,10 @@ public class EB_AFIT implements PackingAlgorithm {
 
     /**
      * Finds the first to be packed gap in the layer edge.
+     *
+     * @param scrapFirst
      */
-    private void findSmallestZ() {
+    private void findSmallestZ(ScrapPad scrapFirst) {
         ScrapPad scrapmemb = scrapFirst;
         smallestZ = scrapmemb;
 
@@ -629,11 +624,12 @@ public class EB_AFIT implements PackingAlgorithm {
             return;
         }
 
+        ScrapPad scrapFirst = new ScrapPad();
         scrapFirst.setCumX(containerVariant.getX());
         scrapFirst.setCumZ(0);
 
-        for (; !quit; ) {
-            findSmallestZ();
+        while (true) {
+            findSmallestZ(scrapFirst);
 
             if ((smallestZ.getPre() == null) && (smallestZ.getPost() == null)) {
                 //*** SITUATION-1: NO BOXES ON THE RIGHT AND LEFT SIDES ***
@@ -744,7 +740,7 @@ public class EB_AFIT implements PackingAlgorithm {
             } else if (smallestZ.getPre().getCumZ() == smallestZ.getPost().getCumZ()) {
                 //*** SITUATION-4: THERE ARE BOXES ON BOTH OF THE SIDES ***
 
-                //*** SUBSITUATION-4A: SIDES ARE EQUAL TO EACH OTHER ***
+                //*** SITUATION-4A: SIDES ARE EQUAL TO EACH OTHER ***
 
                 lenX = smallestZ.getCumX() - smallestZ.getPre().getCumX();
                 lenZ = smallestZ.getPre().getCumZ() - smallestZ.getCumZ();
@@ -805,7 +801,7 @@ public class EB_AFIT implements PackingAlgorithm {
                     }
                 }
             } else {
-                //*** SUBSITUATION-4B: SIDES ARE NOT EQUAL TO EACH OTHER ***
+                //*** SITUATION-4B: SIDES ARE NOT EQUAL TO EACH OTHER ***
 
                 lenX = smallestZ.getCumX() - smallestZ.getPre().getCumX();
                 lenZ = smallestZ.getPre().getCumZ() - smallestZ.getCumZ();
@@ -855,8 +851,6 @@ public class EB_AFIT implements PackingAlgorithm {
      * reports to the console.
      */
     private void report(Container container) {
-        quit = false;
-
         ContainerVariant containerVariant = getContainerVariant(bestVariant, container);
 
         packingBest = true;
@@ -901,10 +895,8 @@ public class EB_AFIT implements PackingAlgorithm {
                 remainpz = containerVariant.getZ();
             }
 
-            if (!quit) {
-                findLayer(containerVariant, remainpy);
-            }
-        } while (packing && !quit);
+            findLayer(containerVariant, remainpy);
+        } while (packing);
     }
 
     /**
@@ -913,8 +905,8 @@ public class EB_AFIT implements PackingAlgorithm {
     private void volumeAndWeightCheck() {
         Item itemToPack = itemsToPack.get(cBoxI);
         if ((packedVolume + itemToPack.getVolume()) <= totalContainerVolume
-                && (packedVolume + itemToPack.getVolume()) <= totalItemVolume
-                && (packedWeight + itemToPack.getWeight()) <= maxAllowedWeight) {
+                && (packedVolume + itemToPack.getVolume()) <= totalItemVolume) {
+//                && (packedWeight + itemToPack.getWeight()) <= maxAllowedWeight) {
             itemToPack.setPacked(true);
             itemToPack.setPackDimX(cboxx);
             itemToPack.setPackDimY(cboxy);

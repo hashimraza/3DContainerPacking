@@ -7,7 +7,7 @@ var itemMaterial;
 
 async function PackContainers(request) {
     return $.ajax({
-        url: 'http://localhost:8080/api/containerpacking',
+        url: 'http://localhost:8081/api/containerpacking',
         type: 'POST',
         data: request,
         contentType: 'application/json; charset=utf-8'
